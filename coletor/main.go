@@ -1,32 +1,33 @@
 package main
 
 import (
-"context"
-"log"
-"os"
-"time"
-
-"go.mongodb.org/mongo-driver/mongo"
-"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
+	"time"
 )
 
-var client *mongo.Client
+const PollInterval = 10 * time.Second
 
-func init() {
-var err error
-mongoURI := os.Getenv("MONGO_URI")
-if mongoURI == "" {
-	mongoURI = "mongodb://localhost:27017"
-}
+func main() {
+	nodes := []string{
+		"http://node1/metrics",
+		"http://node2/metrics",
+	}
 
-clientOptions := options.Client().ApplyURI(mongoURI)
-client, err = mongo.Connect(context.TODO(), clientOptions)
-if err != nil {
-	log.Fatal(err)
-}
+	for {
+		for _, node := range nodes {
+			go func(node string) {
+				metrics, err := CollectMetrics(node)
+				if err != nil {
+					log.Printf("Erro ao coletar métricas de %s: %v", node, err)
+					return
+				}
 
-err = client.Ping(context.TODO(), nil)
-if err != nil {
-	log.Fatal(err)
-}
+				err = StoreMetrics(metrics)
+				if err != nil {
+					log.Printf("Erro ao armazenar métricas de %s: %v", node, err)
+				}
+			}(node)
+		}
+		time.Sleep(PollInterval)
+	}
 }
