@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -17,7 +18,7 @@ func init() {
 
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
-		mongoURI = "mongodb://mongo:27017"
+		mongoURI = "mongodb://localhost:27017"
 	}
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
@@ -38,13 +39,22 @@ func StoreMetrics(metrics *Metrics) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := collection.InsertOne(ctx, map[string]interface{}{
+	metricsMap := map[string]interface{}{
 		"timestamp":   time.Now(),
 		"cpu":         metrics.CPU,
 		"ram":         metrics.RAM,
 		"queue_size":  metrics.QueueSize,
 		"error_count": metrics.ErrorCount,
-	})
+	}
 
-	return err
+	fmt.Printf("Guardando métricas no banco: %+v\n", metricsMap)
+
+	_, err := collection.InsertOne(ctx, metricsMap)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Métricas guardadas com sucesso no banco de dados.")
+
+	return nil
 }

@@ -5,12 +5,11 @@ import (
 	"time"
 )
 
-const PollInterval = 10 * time.Second
+const PollInterval = 60 * time.Second
 
 func main() {
 	nodes := []string{
-		"http://node1/metrics",
-		"http://node2/metrics",
+		"http://test/metrics",
 	}
 
 	for {
