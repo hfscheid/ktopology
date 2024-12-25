@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mongodb:
     image: mongo:latest
@@ -9,12 +7,21 @@ services:
     networks:
       - app-network
     volumes:
-      - mongo-data:/data/db
+      - ./mongo-data:/data/db
+
+  coletor:
+    build: ./
+    container_name: coletor
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - POLL_INTERVAL=30
+      - KUBECONFIG=
+      - TEST_MODE=true
 
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  mongo-data:
-    external: true

@@ -33,3 +33,6 @@ go.mod
 
 # Ignore arquivos de teste
 *.test
+
+# Ignore arquivos do banco de dados
+/mongo-data/

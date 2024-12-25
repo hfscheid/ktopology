@@ -47,7 +47,12 @@ func StoreMetrics(metrics *Metrics) error {
 		"error_count": metrics.ErrorCount,
 	}
 
-	fmt.Printf("Guardando métricas no banco: %+v\n", metricsMap)
+	fmt.Printf("Guardando métricas:\n")
+	fmt.Printf("  Timestamp: %s\n", metricsMap["timestamp"].(time.Time).Format(time.RFC3339))
+	fmt.Printf("  CPU: %.2f\n", metricsMap["cpu"].(float64))
+	fmt.Printf("  RAM: %.2f MB\n", metricsMap["ram"].(float64))
+	fmt.Printf("  Queue Size: %d\n", metricsMap["queue_size"].(int))
+	fmt.Printf("  Error Count: %d\n", metricsMap["error_count"].(int))
 
 	_, err := collection.InsertOne(ctx, metricsMap)
 	if err != nil {
