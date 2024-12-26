@@ -1,0 +1,110 @@
+strict digraph {
+
+
+	"8" [  weight=0 ];
+
+	"8" -> "19" [  weight=0 ];
+
+	"9" [  weight=0 ];
+
+	"9" -> "11" [  weight=0 ];
+
+	"9" -> "19" [  weight=0 ];
+
+	"9" -> "10" [  weight=0 ];
+
+	"16" [  weight=0 ];
+
+	"16" -> "19" [  weight=0 ];
+
+	"1" [  weight=0 ];
+
+	"1" -> "2" [  weight=0 ];
+
+	"1" -> "19" [  weight=0 ];
+
+	"3" [  weight=0 ];
+
+	"3" -> "19" [  weight=0 ];
+
+	"6" [  weight=0 ];
+
+	"6" -> "19" [  weight=0 ];
+
+	"0" [  weight=0 ];
+
+	"0" -> "1" [  weight=0 ];
+
+	"5" [  weight=0 ];
+
+	"5" -> "19" [  weight=0 ];
+
+	"15" [  weight=0 ];
+
+	"15" -> "17" [  weight=0 ];
+
+	"15" -> "19" [  weight=0 ];
+
+	"15" -> "16" [  weight=0 ];
+
+	"7" [  weight=0 ];
+
+	"7" -> "19" [  weight=0 ];
+
+	"17" [  weight=0 ];
+
+	"17" -> "18" [  weight=0 ];
+
+	"17" -> "19" [  weight=0 ];
+
+	"10" [  weight=0 ];
+
+	"10" -> "19" [  weight=0 ];
+
+	"2" [  weight=0 ];
+
+	"2" -> "5" [  weight=0 ];
+
+	"2" -> "6" [  weight=0 ];
+
+	"2" -> "7" [  weight=0 ];
+
+	"2" -> "8" [  weight=0 ];
+
+	"2" -> "9" [  weight=0 ];
+
+	"2" -> "3" [  weight=0 ];
+
+	"2" -> "4" [  weight=0 ];
+
+	"4" [  weight=0 ];
+
+	"4" -> "19" [  weight=0 ];
+
+	"13" [  weight=0 ];
+
+	"13" -> "15" [  weight=0 ];
+
+	"13" -> "19" [  weight=0 ];
+
+	"13" -> "14" [  weight=0 ];
+
+	"12" [  weight=0 ];
+
+	"12" -> "13" [  weight=0 ];
+
+	"14" [  weight=0 ];
+
+	"14" -> "19" [  weight=0 ];
+
+	"11" [  weight=0 ];
+
+	"11" -> "12" [  weight=0 ];
+
+	"19" [  weight=0 ];
+
+	"18" [  weight=0 ];
+
+	"18" -> "19" [  weight=0 ];
+
+}
