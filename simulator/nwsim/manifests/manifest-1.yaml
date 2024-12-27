@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-1
+data:
+  TARGETS: service-0,service-2,service-19
+  DELAYS: 4,3,4
+  TRANSFORMS: 1.1517255842215957,0.5078267713258683,0.6427297908603762
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploymet-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      id: 1
+  template:
+    metadata:
+      labels:
+        id: 1
+    spec:
+      containers:
+      - name: service
+        image: service
+        ports:
+        - containerPort: 80
+      envFrom:
+      - configMapRef:
+          name: configmap-1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-1
+spec:
+  selector:
+    app.kubernetes.io/name: deployment-1
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---

@@ -38,7 +38,7 @@ func (g *Graph) mitosis() {
     }
     if g.am[id][i] == 1 {
       r := rand.Float64()
-      if r > 0.75 && g.am[id][id+1] > 0 {
+      if r > 0.9 && g.am[id][id+1] > 0 {
         // take over parent's foot
         g.am[id+1][i] = 1
         g.am[i][id+1] = -1
@@ -91,4 +91,26 @@ func (g *Graph) Draw() {
   }
   file, _ := os.Create("draw.dot")
   _ = draw.DOT(gv, file)
+}
+
+func (g *Graph) Ids() []int {
+  ids := make([]int, g.size)
+  for i := range g.am {
+    ids[i] = i
+  }
+  return ids
+}
+
+func (g *Graph) Neighbours(id int) ([]int, []int) {
+  pNbs := make([]int, 0)
+  nNbs := make([]int, 0)
+  for i, v := range g.am[id] {
+    switch v {
+    case 1:
+      pNbs = append(pNbs, i)
+    case -1:
+      pNbs = append(nNbs, i)
+    }
+  }
+  return pNbs, nNbs
 }

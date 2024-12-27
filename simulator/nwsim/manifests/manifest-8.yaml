@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-8
+data:
+  TARGETS: service-10,service-19,service-7,service-9
+  DELAYS: 5,5,3,3
+  TRANSFORMS: 1.100597009769507,1.4085287126913555,0.763834065565735,1.0651081056870924
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploymet-8
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      id: 8
+  template:
+    metadata:
+      labels:
+        id: 8
+    spec:
+      containers:
+      - name: service
+        image: service
+        ports:
+        - containerPort: 80
+      envFrom:
+      - configMapRef:
+          name: configmap-8
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-8
+spec:
+  selector:
+    app.kubernetes.io/name: deployment-8
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
