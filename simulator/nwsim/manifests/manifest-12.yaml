@@ -3,9 +3,9 @@ kind: ConfigMap
 metadata:
   name: configmap-12
 data:
-  TARGETS: service-11,service-19
-  DELAYS: 3,3
-  TRANSFORMS: 1.0422106301541505,0.923273345471679
+  TARGETS: service-8,service-13
+  DELAYS: 1,2
+  TRANSFORMS: 0.5701610960571282,0.7752057099732528
 ---
 apiVersion: apps/v1
 kind: Deployment

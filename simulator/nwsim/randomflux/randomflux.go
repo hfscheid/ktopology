@@ -38,20 +38,44 @@ func (g *Graph) mitosis() {
     }
     if g.am[id][i] == 1 {
       r := rand.Float64()
-      if r > 0.9 && g.am[id][id+1] > 0 {
+      if r > 0.25 && g.am[id][id+1] > 0 {
         // take over parent's foot
         g.am[id+1][i] = 1
         g.am[i][id+1] = -1
         g.am[id][i] = 0
         g.am[i][id+1] = 0
-      } else {
+      } else if r > 0.75 {
         // do not take over parent's foot
         g.am[id+1][i] = 1
         g.am[i][id+1] = -1
+      } else {
+        dst := rand.Intn(len(g.am)-id)+id
+        g.am[id+1][dst] = 1
+        g.am[dst][id+1] = -1
       }
     }
   }
   g.size++
+}
+
+func (g *Graph) tieUp() {
+  var sum int
+  for i := range g.am {
+    sum = 0
+    for _, v := range g.am[i] {
+      if v > 0 {
+       sum +=1
+       break
+     }
+    }
+    if sum == 0 {
+      if r := rand.Float64();
+      r > 0.75 {
+        g.am[i][g.size-1] = 1 
+        g.am[g.size-1][i] = -1 
+      }
+    }
+  }
 }
 
 func New(size int) *Graph {
@@ -68,6 +92,7 @@ func New(size int) *Graph {
   for g.size < size {
     g.mitosis()
   }
+  g.tieUp()
   return &g
 }
 
