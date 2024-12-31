@@ -38,7 +38,7 @@ func (g *Graph) mitosis() {
     }
     if g.am[id][i] == 1 {
       r := rand.Float64()
-      if r > 0.25 && g.am[id][id+1] > 0 {
+      if r > 0.5 && g.am[id][id+1] > 0 {
         // take over parent's foot
         g.am[id+1][i] = 1
         g.am[i][id+1] = -1
@@ -70,7 +70,7 @@ func (g *Graph) tieUp() {
     }
     if sum == 0 {
       if r := rand.Float64();
-      r > 0.75 {
+      r > 0.25 {
         g.am[i][g.size-1] = 1 
         g.am[g.size-1][i] = -1 
       }

@@ -77,10 +77,12 @@ kind: ConfigMap
 metadata:
   name: configmap-%v
 data:
+  ID: %v
+  QUEUESIZE: %v
   TARGETS: %v
   DELAYS: %v
   TRANSFORMS: %v`,
-  s.id, strTargets, strDelays, strTransforms))
+  s.id, s.id, s.queueSize, strTargets, strDelays, strTransforms))
 }
 
 func toString(tData map[*Service]TargetData) (string, string, string) {
@@ -90,7 +92,7 @@ func toString(tData map[*Service]TargetData) (string, string, string) {
   for k, v := range tData {
     targets     += fmt.Sprintf("service-%v,", k.id)
     delays      += fmt.Sprintf("%v,", v.delay)
-    transforms  += fmt.Sprintf("%v,", v.transform)
+    transforms  += fmt.Sprintf("%.2f,", v.transform)
   }
   targets     = strings.TrimRight(targets, ",")
   delays      = strings.TrimRight(delays, ",")
