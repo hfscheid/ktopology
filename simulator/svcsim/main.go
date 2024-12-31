@@ -43,6 +43,8 @@ func configureGlobalServiceInfo() {
   globalServiceInfo.id, _   = strconv.Atoi(os.Getenv("ID"))
   globalServiceInfo.queueSize, _   = strconv.Atoi(os.Getenv("QUEUESIZE"))
 
+  // TODO: sink svc has empty targets, must have condition
+
   targets     := strings.Split(os.Getenv("TARGETS"), ",")
   delays      := strings.Split(os.Getenv("DELAYS"), ",")
   transforms  := strings.Split(os.Getenv("TRANSFORMS"), ",")
@@ -64,10 +66,11 @@ func configureGlobalServiceInfo() {
 func pushToQueue(w http.ResponseWriter, req *http.Request) {
   mutex.Lock()
   if len(globalServiceInfo.queue) == globalServiceInfo.queueSize {
-    w.Write([]byte("rejected"))
+    w.Write([]byte("REJECTED"))
     mutex.Unlock()
     return
   }
+  mutex.Unlock()
 
   rawBody, err := io.ReadAll(req.Body)
   if err != nil {
@@ -90,6 +93,7 @@ func pushToQueue(w http.ResponseWriter, req *http.Request) {
     Packet{pId, pVal},
   )
   mutex.Unlock()
+  w.Write([]byte("OK"))
 }
 
 func metrics(w http.ResponseWriter, req *http.Request) {
@@ -100,15 +104,26 @@ func sendToTargets(p Packet) {
   for target, delay := range globalServiceInfo.delays {
     time.Sleep(10^9*time.Duration(delay))
     newValue := globalServiceInfo.transforms[target]*p.value
-    res, err := http.Post(
-      target,
-      "text/plain",
-      strings.NewReader(
-        fmt.Sprintf("%v,%.2f", p.id, newValue),
-      ),
-    )
-    // TODO: check response
-    // TODO: check error
+    for {
+      res, err := http.Post(
+        target,
+        "text/plain",
+        strings.NewReader(
+          fmt.Sprintf("%v,%.2f", p.id, newValue),
+        ),
+      )
+      resBody, _ := io.ReadAll(res.Body)
+      if string(resBody) == "OK" {
+        log.Printf("Message %v to %v OK\n", p.id, target)
+        break
+      } else if string(resBody) == "REJECTED" {
+        log.Printf("Message %v to %v REJECTED\n", p.id, target)
+        continue
+      }
+      if err != nil {
+        log.Printf("Error sending message to target: %v\n", err)
+      }
+    }
   }
 }
 
@@ -131,6 +146,6 @@ func main() {
   configureGlobalServiceInfo()
   http.HandleFunc("/", pushToQueue)
   http.HandleFunc("/metrics", metrics)
-  go forward()
-  http.ListenAndServe(":8080", nil)
+  // go forward()
+  http.ListenAndServe(":80", nil)
 }

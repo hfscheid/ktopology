@@ -1,8 +1,10 @@
 package main
+
 import (
-  "os"
   "fmt"
   "math/rand"
+  "os"
+  "strconv"
 
   "nwsim/randomflux"
   "nwsim/services"
@@ -17,6 +19,7 @@ func servicesFromGraph(g *randomflux.Graph) map[int]*services.Service {
   for _, id := range g.Ids() {
     nbs, _ := g.Neighbours(id)
     for _, nb := range nbs {
+      fmt.Printf("Adding target %v to service %v\n", nb, id)
       sMap[id].AddTarget(
         sMap[nb],
         rand.Intn(5)+1,
@@ -41,7 +44,8 @@ func writeManifests(sMap map[int]*services.Service) {
 }
 
 func main() {
-  g := randomflux.New(20)
+  size, _ := strconv.Atoi(os.Args[1])
+  g := randomflux.New(size)
   g.Draw()
   writeManifests(servicesFromGraph(g))
 }

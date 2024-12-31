@@ -61,6 +61,9 @@ func (g *Graph) mitosis() {
 func (g *Graph) tieUp() {
   var sum int
   for i := range g.am {
+    if i == len(g.am)-1 {
+      break
+    }
     sum = 0
     for _, v := range g.am[i] {
       if v > 0 {
@@ -134,7 +137,7 @@ func (g *Graph) Neighbours(id int) ([]int, []int) {
     case 1:
       pNbs = append(pNbs, i)
     case -1:
-      pNbs = append(nNbs, i)
+      nNbs = append(nNbs, i)
     }
   }
   return pNbs, nNbs
