@@ -1,26 +1,31 @@
 package main
 
 import (
+  "fmt"
+  "io"
+  "log"
   "net/http"
   "os"
-  "fmt"
-  "log"
   "strconv"
   "strings"
+  "sync"
+  "time"
 
   "github.com/prometheus/client_golang/prometheus"
 )
-
-type Metrics struct {
-  cpu prometheus.Gauge
-  mem prometheus.Gauge
-  rejected prometheus.Counter
-}
 
 type Packet struct {
   id int
   value float64
 }
+
+var globalMetrics struct {
+  cpu prometheus.Gauge
+  mem prometheus.Gauge
+  rejected prometheus.Counter
+}
+
+var mutex sync.Mutex
 
 var globalServiceInfo struct {
   id int
@@ -56,18 +61,76 @@ func configureGlobalServiceInfo() {
   }
 }
 
-func forward(w http.ResponseWriter, req *http.Request) {
+func pushToQueue(w http.ResponseWriter, req *http.Request) {
+  mutex.Lock()
+  if len(globalServiceInfo.queue) == globalServiceInfo.queueSize {
+    w.Write([]byte("rejected"))
+    mutex.Unlock()
+    return
+  }
 
+  rawBody, err := io.ReadAll(req.Body)
+  if err != nil {
+    log.Printf("Bad request: %v", err)
+  }
+  packetStr := strings.Split(string(rawBody), ",")
+  pId, err  := strconv.Atoi(packetStr[0])
+  if err != nil {
+    log.Printf("Bad request id: %v\nError: %v\n", packetStr, err)
+    return
+  }
+  pVal, err := strconv.ParseFloat(packetStr[1], 64)
+  if err != nil {
+    log.Printf("Bad request value: %v\nError: %v\n", packetStr, err)
+    return
+  }
+  mutex.Lock()
+  globalServiceInfo.queue = append(
+    globalServiceInfo.queue,
+    Packet{pId, pVal},
+  )
+  mutex.Unlock()
 }
 
 func metrics(w http.ResponseWriter, req *http.Request) {
   fmt.Println(globalServiceInfo)
 }
 
+func sendToTargets(p Packet) {
+  for target, delay := range globalServiceInfo.delays {
+    time.Sleep(10^9*time.Duration(delay))
+    newValue := globalServiceInfo.transforms[target]*p.value
+    res, err := http.Post(
+      target,
+      "text/plain",
+      strings.NewReader(
+        fmt.Sprintf("%v,%.2f", p.id, newValue),
+      ),
+    )
+    // TODO: check response
+    // TODO: check error
+  }
+}
+
+func forward() {
+  for {
+    mutex.Lock()
+    if len(globalServiceInfo.queue) > 0 {
+      p := globalServiceInfo.queue[0]
+      globalServiceInfo.queue = globalServiceInfo.queue[1:]
+      mutex.Unlock()
+      sendToTargets(p)
+    } else {
+      mutex.Unlock()
+    }
+  }
+}
+
 
 func main() {
   configureGlobalServiceInfo()
-  http.HandleFunc("/", forward)
+  http.HandleFunc("/", pushToQueue)
   http.HandleFunc("/metrics", metrics)
+  go forward()
   http.ListenAndServe(":8080", nil)
 }
