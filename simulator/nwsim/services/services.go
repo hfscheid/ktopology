@@ -98,7 +98,7 @@ func toString(tData map[*Service]TargetData) (string, string, string) {
   delays := ""
   transforms := ""
   for _, v := range tData {
-    targets     += fmt.Sprintf("%v,", v.name)
+    targets     += fmt.Sprintf("http://%v,", v.name)
     delays      += fmt.Sprintf("%v,", v.delay)
     transforms  += fmt.Sprintf("%.2f,", v.transform)
   }
