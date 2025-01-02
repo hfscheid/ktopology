@@ -39,25 +39,25 @@ func (s *Service) Deployment() []byte {
 `apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deploymet-%v
+  name: 'deploymet-%v'
 spec:
   replicas: 1
   selector:
     matchLabels:
-      id: %v
+      id: '%v'
   template:
     metadata:
       labels:
-        id: %v
+        id: '%v'
     spec:
       containers:
       - name: service
         image: service
         ports:
         - containerPort: 80
-      envFrom:
-      - configMapRef:
-          name: configmap-%v`,
+        envFrom:
+        - configMapRef:
+            name: configmap-%v`,
     s.id, s.id, s.id, s.id))
 }
 
@@ -66,10 +66,10 @@ func (s *Service) Service() []byte {
 `apiVersion: v1
 kind: Service
 metadata:
-  name: service-%v
+  name: 'service-%v'
 spec:
   selector:
-    app.kubernetes.io/name: deployment-%v
+    app.kubernetes.io/name: 'deployment-%v'
   ports:
     - protocol: TCP
       port: 80
@@ -83,7 +83,7 @@ func (s *Service) ConfigMap() []byte {
 `apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configmap-%v
+  name: 'configmap-%v'
 data:
   ID: '%v'
   QUEUESIZE: '%v'
