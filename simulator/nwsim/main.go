@@ -12,21 +12,31 @@ import (
 
 func servicesFromGraph(g *randomflux.Graph) map[int]*services.Service {
   sMap := make(map[int]*services.Service)
-  for _, id := range g.Ids() {
+  ids := g.Ids()
+  for _, id := range ids {
     s := services.New(id, rand.Intn(10)+5)
     sMap[id] = s
   }
-  for _, id := range g.Ids() {
+  for _, id := range ids {
     nbs, _ := g.Neighbours(id)
     for _, nb := range nbs {
-      fmt.Printf("Adding target %v to service %v\n", nb, id)
       sMap[id].AddTarget(
         sMap[nb],
         rand.Intn(5)+1,
         rand.Float64()+0.5,
+        fmt.Sprintf("service-%v", nb),
       )
     }
   }
+
+  // Tie simulated network to sink
+  sink := services.New(-1, 0)
+  sMap[ids[len(ids)-1]].AddTarget(
+    sink,
+    rand.Intn(5)+1,
+    rand.Float64()+0.5,
+    "sink",
+  )
   return sMap
 }
 

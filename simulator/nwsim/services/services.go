@@ -7,6 +7,7 @@ import (
 type TargetData struct {
   delay     int
   transform float64
+  name      string
 }
 
 type Service struct {
@@ -22,8 +23,15 @@ func New(id, qSize int) *Service {
   }
 }
 
-func (s *Service) AddTarget(t *Service, delay int, transform float64) {
-  s.targets[t] = TargetData{delay, transform}
+func (s *Service) AddTarget(t *Service,
+                            delay int,
+                            transform float64,
+                            name string) {
+  s.targets[t] = TargetData{
+    delay,
+    transform,
+    name,
+  }
 }
 
 func (s *Service) Deployment() []byte {
@@ -77,11 +85,11 @@ kind: ConfigMap
 metadata:
   name: configmap-%v
 data:
-  ID: %v
-  QUEUESIZE: %v
-  TARGETS: %v
-  DELAYS: %v
-  TRANSFORMS: %v`,
+  ID: '%v'
+  QUEUESIZE: '%v'
+  TARGETS: '%v'
+  DELAYS: '%v'
+  TRANSFORMS: '%v'`,
   s.id, s.id, s.queueSize, strTargets, strDelays, strTransforms))
 }
 
@@ -89,8 +97,8 @@ func toString(tData map[*Service]TargetData) (string, string, string) {
   targets := ""
   delays := ""
   transforms := ""
-  for k, v := range tData {
-    targets     += fmt.Sprintf("service-%v,", k.id)
+  for _, v := range tData {
+    targets     += fmt.Sprintf("%v,", v.name)
     delays      += fmt.Sprintf("%v,", v.delay)
     transforms  += fmt.Sprintf("%.2f,", v.transform)
   }
