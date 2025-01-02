@@ -1,17 +1,18 @@
 package main
 
 import (
-  "fmt"
-  "io"
-  "log"
-  "net/http"
-  "os"
-  "strconv"
-  "strings"
-  "sync"
-  "time"
+	"fmt"
+	"io"
+	"log"
+	"math"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 
-  "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Packet struct {
@@ -43,7 +44,6 @@ func configureGlobalServiceInfo() {
   globalServiceInfo.id, _   = strconv.Atoi(os.Getenv("ID"))
   globalServiceInfo.queueSize, _   = strconv.Atoi(os.Getenv("QUEUESIZE"))
 
-  // TODO: sink svc has empty targets, must have condition
 
   targets     := strings.Split(os.Getenv("TARGETS"), ",")
   delays      := strings.Split(os.Getenv("DELAYS"), ",")
@@ -102,9 +102,10 @@ func metrics(w http.ResponseWriter, req *http.Request) {
 
 func sendToTargets(p Packet) {
   for target, delay := range globalServiceInfo.delays {
-    time.Sleep(10^9*time.Duration(delay))
+    time.Sleep(time.Duration(math.Pow(10.0, 9.0)*float64(delay)))
     newValue := globalServiceInfo.transforms[target]*p.value
     for {
+      log.Printf("Sending to %v\n", target)
       res, err := http.Post(
         target,
         "text/plain",
@@ -112,16 +113,17 @@ func sendToTargets(p Packet) {
           fmt.Sprintf("%v,%.2f", p.id, newValue),
         ),
       )
+      if err != nil {
+        log.Printf("Error sending message to target: %v\n", err)
+      }
       resBody, _ := io.ReadAll(res.Body)
+      res.Body.Close()
       if string(resBody) == "OK" {
         log.Printf("Message %v to %v OK\n", p.id, target)
         break
       } else if string(resBody) == "REJECTED" {
         log.Printf("Message %v to %v REJECTED\n", p.id, target)
         continue
-      }
-      if err != nil {
-        log.Printf("Error sending message to target: %v\n", err)
       }
     }
   }
@@ -146,6 +148,6 @@ func main() {
   configureGlobalServiceInfo()
   http.HandleFunc("/", pushToQueue)
   http.HandleFunc("/metrics", metrics)
-  // go forward()
-  http.ListenAndServe(":80", nil)
+  go forward()
+  http.ListenAndServe(":8081", nil)
 }
