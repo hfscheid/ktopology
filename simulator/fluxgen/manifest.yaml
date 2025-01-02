@@ -14,20 +14,22 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      id: 2
+      id: '2'
   template:
     metadata:
       labels:
-        id: 2
+        id: '2'
+        app: 'sink'
     spec:
       containers:
       - name: sink
         image: sink
+        imagePullPolicy: Never
         ports:
         - containerPort: 80
-      envFrom:
-      - configMapRef:
-        name: sink-configmap
+        envFrom:
+        - configMapRef:
+            name: sink-configmap
 ---
 apiVersion: v1
 kind: Service
@@ -35,7 +37,7 @@ metadata:
   name: sink
 spec:
   selector:
-    app.kubernetes.io/name: sink
+    app: 'sink'
   ports:
     - protocol: TCP
       port: 80

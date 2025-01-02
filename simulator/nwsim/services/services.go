@@ -39,7 +39,7 @@ func (s *Service) Deployment() []byte {
 `apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: 'deploymet-%v'
+  name: 'deployment-%v'
 spec:
   replicas: 1
   selector:
@@ -49,16 +49,18 @@ spec:
     metadata:
       labels:
         id: '%v'
+        app: 'deployment-%v'
     spec:
       containers:
       - name: service
         image: service
+        imagePullPolicy: Never
         ports:
         - containerPort: 80
         envFrom:
         - configMapRef:
             name: configmap-%v`,
-    s.id, s.id, s.id, s.id))
+    s.id, s.id, s.id, s.id, s.id))
 }
 
 func (s *Service) Service() []byte {
@@ -69,7 +71,7 @@ metadata:
   name: 'service-%v'
 spec:
   selector:
-    app.kubernetes.io/name: 'deployment-%v'
+    app: 'deployment-%v'
   ports:
     - protocol: TCP
       port: 80

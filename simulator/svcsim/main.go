@@ -102,9 +102,9 @@ func metrics(w http.ResponseWriter, req *http.Request) {
 
 func sendToTargets(p Packet) {
   for target, delay := range globalServiceInfo.delays {
-    time.Sleep(time.Duration(math.Pow(10.0, 9.0)*float64(delay)))
     newValue := globalServiceInfo.transforms[target]*p.value
     for {
+      time.Sleep(time.Duration(math.Pow(10.0, 9.0)*float64(delay)))
       log.Printf("Sending to %v\n", target)
       res, err := http.Post(
         target,
@@ -149,5 +149,5 @@ func main() {
   http.HandleFunc("/", pushToQueue)
   http.HandleFunc("/metrics", metrics)
   go forward()
-  http.ListenAndServe(":8081", nil)
+  http.ListenAndServe(":80", nil)
 }

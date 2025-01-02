@@ -39,5 +39,5 @@ func main() {
   http.HandleFunc("/", logBody)
   interval, _ := strconv.ParseFloat(os.Getenv("INTERVAL"), 64)
   go genRequests(os.Getenv("SOURCE"), interval)
-  http.ListenAndServe(":8080", nil)
+  http.ListenAndServe(":80", nil)
 }
