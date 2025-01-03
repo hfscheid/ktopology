@@ -68,3 +68,42 @@ func NewArray[T any]() Array[T] {
     val: val,
   }
 }
+
+type IncMap[K comparable] struct {
+  val map[K]int
+  m sync.Mutex
+}
+func NewMap[K comparable]() IncMap[K] {
+  val := make(map[K]int)
+  return IncMap[K]{
+    val: val,
+  }
+}
+func (m *IncMap[K]) Set(key K, value int) {
+  m.val[key] = value
+}
+func (m *IncMap[K]) Inc(key K) {
+  value, ok := m.val[key]
+  if !ok {
+    m.val[key] = 1
+  } else {
+    m.val[key] = value+1
+  }
+}
+func (m *IncMap[K]) Get(key K) (int, bool) {
+  value, ok := m.val[key]
+  return value, ok
+}
+func (m *IncMap[K]) Lock() {
+  m.m.Lock()
+}
+func (m *IncMap[K]) Unlock() {
+  m.m.Unlock()
+}
+func (m *IncMap[K]) Keys() []K {
+  keys := make([]K, 0, len(m.val))
+  for k := range m.val {
+    keys = append(keys, k)
+  }
+  return keys
+}
