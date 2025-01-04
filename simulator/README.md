@@ -8,7 +8,12 @@
 Se assegure que o ambiente minikube utilize um repositório local de imagens
 Docker:
 
-`eval $(minikube docker-env)`
+```
+# inicie o cluster miniube
+minikube start
+# utilize o repositório de images local do minikube com docker
+eval $(minikube docker-env)
+```
 
 
 # Passo 1: gerar topologia da rede simulada
@@ -40,12 +45,7 @@ seguinte comando a partir do diretório `k8stopology/simulator/fluxgen`:
 
 > Aqui também é fundamental observância do passo 0 e do devido nome da imagem.
 
-# Passo 3: criar e popular o cluster
-Para iniciar o cluster minikube:
-
-`minikube start`
-
-Para popular o cluster:
+# Passo 3: popular o cluster
 ```
 # a partir de k8stopology/simulator:
 kubectl apply -f nwsim/manifests/
