@@ -78,29 +78,29 @@ func main() {
 		}
 
 		for {
-			nodes, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+			pods, err := clientset.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{})
 			if err != nil {
 				log.Printf("Erro ao listar nodes: %v", err)
 				time.Sleep(PollInterval)
 				continue
 			}
 
-			for _, node := range nodes.Items {
-				nodeIP := node.Status.Addresses[0].Address
-				nodeURL := fmt.Sprintf("http://%s:8080/metrics", nodeIP)
+			for _, pod := range pods.Items {
+				podIP := pod.Status.PodIP
+				podURL := fmt.Sprintf("http://%s:8080/metrics", podIP)
 
-				go func(nodeURL string) {
-					metrics, err := CollectMetrics(nodeURL)
+				go func() {
+					metrics, err := CollectMetrics(podURL)
 					if err != nil {
-						log.Printf("Erro ao coletar métricas de %s: %v", nodeURL, err)
+						log.Printf("Erro ao coletar métricas de %s: %v", podURL, err)
 						return
 					}
 
 					err = StoreMetrics(metrics)
 					if err != nil {
-						log.Printf("Erro ao armazenar métricas de %s: %v", nodeURL, err)
+						log.Printf("Erro ao armazenar métricas de %s: %v", podURL, err)
 					}
-				}(nodeURL)
+				}()
 			}
 
 			time.Sleep(PollInterval)
