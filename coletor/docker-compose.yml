@@ -4,24 +4,5 @@ services:
     container_name: mongodb
     ports:
       - "27017:27017"
-    networks:
-      - app-network
     volumes:
       - ./mongo-data:/data/db
-
-  coletor:
-    build: ./
-    container_name: coletor
-    depends_on:
-      - mongodb
-    networks:
-      - app-network
-    environment:
-      - MONGO_URI=mongodb://mongodb:27017
-      - POLL_INTERVAL=30
-      - KUBECONFIG=
-      - TEST_MODE=true
-
-networks:
-  app-network:
-    driver: bridge

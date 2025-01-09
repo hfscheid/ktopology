@@ -37,19 +37,19 @@ func (s *Service) AddTarget(t *Service,
 func (s *Service) Deployment() []byte {
   return []byte(fmt.Sprintf(
 `apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: 'deployment-%v'
+  name: 'service-%v'
 spec:
   replicas: 1
   selector:
     matchLabels:
       id: '%v'
+  serviceName: "service-%v"
   template:
     metadata:
       labels:
         id: '%v'
-        app: 'deployment-%v'
     spec:
       containers:
       - name: service
@@ -71,7 +71,7 @@ metadata:
   name: 'service-%v'
 spec:
   selector:
-    app: 'deployment-%v'
+    id: '%v'
   ports:
     - protocol: TCP
       port: 80
