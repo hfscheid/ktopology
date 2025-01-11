@@ -48,11 +48,12 @@ func main() {
 	if testMode {
 		for {
 			nodeURL := "http://test:8080/metrics"
+			nodeID := "test-node"
 			metrics, err := CollectMetrics(nodeURL)
 			if err != nil {
 				log.Printf("Erro ao coletar métricas de %s: %v", nodeURL, err)
 			} else {
-				err = StoreMetrics(metrics)
+				err = StoreMetrics(metrics, nodeID)
 				if err != nil {
 					log.Printf("Erro ao armazenar métricas de %s: %v", nodeURL, err)
 				}
@@ -88,19 +89,20 @@ func main() {
 			for _, pod := range pods.Items {
 				podIP := pod.Status.PodIP
 				podURL := fmt.Sprintf("http://%s:8080/metrics", podIP)
+				nodeID := pod.Name
 
-				go func() {
+				go func(podURL, nodeID string) {
 					metrics, err := CollectMetrics(podURL)
 					if err != nil {
 						log.Printf("Erro ao coletar métricas de %s: %v", podURL, err)
 						return
 					}
 
-					err = StoreMetrics(metrics)
+					err = StoreMetrics(metrics, nodeID)
 					if err != nil {
 						log.Printf("Erro ao armazenar métricas de %s: %v", podURL, err)
 					}
-				}()
+				}(podURL, nodeID)
 			}
 
 			time.Sleep(PollInterval)

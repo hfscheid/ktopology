@@ -13,6 +13,22 @@ import (
 
 var client *mongo.Client
 
+type Node struct {
+	ID       string                 `json:"id"`
+	Label    string                 `json:"label"`
+	Metadata map[string]interface{} `json:"metadata"`
+}
+
+type Edge struct {
+	Source string `json:"source"`
+	Target string `json:"target"`
+}
+
+type Graph struct {
+	Nodes []Node `json:"nodes"`
+	Edges []Edge `json:"edges"`
+}
+
 func init() {
 	var err error
 
@@ -33,33 +49,47 @@ func init() {
 	}
 }
 
-func StoreMetrics(metrics *Metrics) error {
-	collection := client.Database("metricsdb").Collection("metrics")
+func StoreMetrics(metrics *Metrics, nodeID string) error {
+	collection := client.Database("metricsdb").Collection("graphs")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	metricsMap := map[string]interface{}{
-		"timestamp":   time.Now(),
-		"cpu":         metrics.CPU,
-		"ram":         metrics.RAM,
-		"queue_size":  metrics.QueueSize,
-		"error_count": metrics.ErrorCount,
+	node := Node{
+		ID:    nodeID,
+		Label: "Node " + nodeID,
+		Metadata: map[string]interface{}{
+			"timestamp":    time.Now(),
+			"cpu_usage":    metrics.CPUUsage,
+			"mem_usage":    metrics.MemUsage,
+			"queue_size":   metrics.QueueSize,
+			"num_rejected": metrics.NumRejected,
+		},
 	}
 
-	fmt.Printf("Guardando métricas:\n")
-	fmt.Printf("  Timestamp: %s\n", metricsMap["timestamp"].(time.Time).Format(time.RFC3339))
-	fmt.Printf("  CPU: %.2f\n", metricsMap["cpu"].(float64))
-	fmt.Printf("  RAM: %.2f MB\n", metricsMap["ram"].(float64))
-	fmt.Printf("  Queue Size: %d\n", metricsMap["queue_size"].(int))
-	fmt.Printf("  Error Count: %d\n", metricsMap["error_count"].(int))
+	edge := Edge{
+		Source: nodeID,
+		Target: fmt.Sprintf("%d", time.Now().UnixNano()),
+	}
 
-	_, err := collection.InsertOne(ctx, metricsMap)
+	graph := Graph{
+		Nodes: []Node{node},
+		Edges: []Edge{edge},
+	}
+
+	fmt.Printf("Guardando gráfico:\n")
+	fmt.Printf("  Node ID: %s\n", node.ID)
+	fmt.Printf("  CPU Usage: %.2f\n", node.Metadata["cpu_usage"].(float64))
+	fmt.Printf("  Memory Usage: %.2f MB\n", node.Metadata["mem_usage"].(float64))
+	fmt.Printf("  Queue Size: %d\n", node.Metadata["queue_size"].(int))
+	fmt.Printf("  Number of Rejected Messages: %d\n", node.Metadata["num_rejected"].(int))
+
+	_, err := collection.InsertOne(ctx, graph)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Métricas guardadas com sucesso no banco de dados.")
+	fmt.Println("Gráfico guardado com sucesso no banco de dados.")
 
 	return nil
 }
