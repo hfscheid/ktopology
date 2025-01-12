@@ -2,12 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"time"
-
-  "collector/ktprom"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -51,39 +48,54 @@ func init() {
 	}
 }
 
-func buildGraphFromMerics(metrics []*ktprom.TopologyMetrics) Graph {
-  for _, podMetrics := range metrics {
-    node := Node{
-      ID:    podID,
-      Label: "Node " + podID,
-      Metadata: map[string]interface{}{
-        "timestamp":    time.Now(),
-        "cpu_usage":    metrics.CPUUsage,
-        "mem_usage":    metrics.MemUsage,
-        "queue_size":   metrics.QueueSize,
-        "num_rejected": metrics.NumRejected,
-      },
-    }
+func buildAddrMap(metrics []IdMetrics) map[string]string {
+  addrMap := make(map[string]string)
+  for _, idMetrics := range metrics {
+    addrMap[idMetrics.addr] = idMetrics.id
   }
-	edge := Edge{
-		Source: podID,
-		Target: fmt.Sprintf("%d", time.Now().UnixNano()),
-	}
-	graph := Graph{
-		Nodes: []Node{node},
-		Edges: []Edge{edge},
-	}
+  return addrMap
 }
 
-func StoreMetrics(metrics []*ktprom.TopologyMetrics) error {
+func buildGraphFromMetrics(metrics []IdMetrics) *Graph {
+  addrMap := buildAddrMap(metrics)
+  nodes := make([]Node, 0, len(metrics))
+  edges := make([]Edge, 0, len(metrics))
+  for _, podMetrics := range metrics {
+    node := Node{
+      ID:    podMetrics.id,
+      Metadata: map[string]interface{}{
+        "timestamp":    time.Now(),
+        "cpu_usage":    podMetrics.metrics.CPUUsage,
+        "mem_usage":    podMetrics.metrics.MemUsage,
+        "queue_size":   podMetrics.metrics.QueueSize,
+        "num_rejected": podMetrics.metrics.NumRejected,
+      },
+    }
+    nodes = append(nodes, node)
+    for addr, _ := range podMetrics.metrics.SentPkgs {
+      edge := Edge{
+        Source: podMetrics.id,
+        Target: addrMap[addr],
+      }
+      edges = append(edges, edge)
+    }
+  }
+	graph := &Graph{
+		Nodes: nodes,
+		Edges: edges,
+	}
+  return graph
+}
+
+func StoreMetrics(metrics []IdMetrics) error {
 	collection := client.Database("metricsdb").Collection("graphs")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
+  graph := buildGraphFromMetrics(metrics)
 	_, err := collection.InsertOne(ctx, graph)
 	if err != nil {
 		return err
 	}
-	log.Println("Gráfico guardado com sucesso no banco de dados.")
+	log.Println("Successfully stored graph in database")
 	return nil
 }

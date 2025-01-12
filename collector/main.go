@@ -17,6 +17,12 @@ import (
   // "k8s.io/client-go/tools/clientcmd"
 )
 
+type IdMetrics struct {
+  id      string
+  addr    string
+  metrics *ktprom.TopologyMetrics
+}
+
 
 func getPollInterval() time.Duration {
   var pollInterval time.Duration
@@ -62,7 +68,7 @@ func poll(k8sClient *kubernetes.Clientset, pollInterval time.Duration) {
     log.Printf("Found %v pods in namespace \"default\"\n", numPods)
     log.Println("Polling metrics from pods...")
     wg.Add(numPods)
-    podMetricsChan := make(chan *ktprom.TopologyMetrics, numPods)
+    podMetricsChan := make(chan IdMetrics, numPods)
     for _, pod := range pods.Items {
       podIP := pod.Status.PodIP
       podURL := fmt.Sprintf("http://%v:8080/metrics", podIP)
@@ -72,12 +78,12 @@ func poll(k8sClient *kubernetes.Clientset, pollInterval time.Duration) {
           log.Printf("Could not read metrics from %s: %v", podURL, err)
           return
         }
-        podMetricsChan <- metrics
+        podMetricsChan <- IdMetrics{id: pod.Name, addr: podIP, metrics: metrics}
         wg.Done()
       }()
     }
     wg.Wait()
-    podMetrics := make([]*ktprom.TopologyMetrics, 0, numPods)
+    podMetrics := make([]IdMetrics, 0, numPods)
     for pms, ok := <- podMetricsChan; ok; pms, ok = <-podMetricsChan {
       podMetrics = append(podMetrics, pms)
     }
