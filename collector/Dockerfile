@@ -3,10 +3,10 @@ FROM golang:1.23
 WORKDIR /usr/src/app
 RUN mkdir ktprom
 
-# COPY simulator/svcsim/go.mod simulator/svcsim/go.sum ./
+# copy collector/go.mod collector/go.sum ./
 COPY ktprom/ktprom.go ktprom/
-COPY simulator/svcsim/ .
-RUN go mod tidy 
+COPY collector/ .
+RUN go mod tidy
 
 RUN go build -v -o /usr/local/bin/app ./.
 

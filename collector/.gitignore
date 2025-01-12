@@ -36,3 +36,5 @@ go.mod
 
 # Ignore arquivos do banco de dados
 /mongo-data/
+
+ktprom
