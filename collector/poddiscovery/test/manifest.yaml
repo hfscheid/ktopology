@@ -1,0 +1,47 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: test-poddiscovery
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: test-poddiscovery-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: test-poddiscovery
+subjects:
+  - kind: ServiceAccount
+    name: test-poddiscovery-sa
+    namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: test-poddiscovery-sa
+  namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-poddiscovery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-poddiscovery
+  template:
+    metadata:
+      labels:
+        app: test-poddiscovery
+    spec:
+      serviceAccountName: test-poddiscovery-sa
+      containers:
+      - name: test-poddiscovery
+        image: test-poddiscovery
+        imagePullPolicy: Never
