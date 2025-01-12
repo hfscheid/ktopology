@@ -10,10 +10,7 @@ import (
 	"strings"
 	"time"
 
-  "svcsim/synctypes"
-  
-  "github.com/shirou/gopsutil/v4/cpu"
-  "github.com/shirou/gopsutil/v4/mem"
+  "svcsim/ktprom"
 )
 
 type Packet struct {
@@ -21,49 +18,23 @@ type Packet struct {
   value float64
 }
 
-var globalMetrics struct {
-  rejected synctypes.Int
-  forwarded synctypes.IncMap[string]
-}
+var globalMetrics *ktprom.TopologyMetrics
 
 func exportMetrics(w http.ResponseWriter, req *http.Request) {
-  cpu_usage, _ := cpu.Percent(time.Duration(0), false)
-  mem_stat, _ := mem.VirtualMemory()
-  mem_usage := mem_stat.UsedPercent
+  globalMetrics.UpdateCPU()
+  globalMetrics.UpdateMem()
   globalServiceInfo.queue.Lock()
   qSize := globalServiceInfo.queue.Size()
   globalServiceInfo.queue.Unlock()
-  metrics_output := fmt.Sprintf(
-`# HELP CPU usage
-# TYPE cpu_usage gauge
-cpu_usage %.3f
-# HELP Memory usage in Megabytes
-# TYPE mem_usage gauge
-mem_usage %.3f
-# HELP number of rejected messages due to full queue
-# TYPE num_rejected counter
-num_rejected %v
-# HELP Queue size 
-# TYPE queue_size gauge
-queue_size %v`,
-  cpu_usage[0], mem_usage, globalMetrics.rejected.Get(), qSize)
-  for _, k := range globalMetrics.forwarded.Keys() {
-    count, _ := globalMetrics.forwarded.Get(k)
-    metrics_output += fmt.Sprintf(
-`
-# HELP Number of successfully forwarded messages to %v
-# TYPE %v_forwarded_count counter
-%v_forwarded_count %v`,
-      k, k, k, count)
-  }
-  w.Write([]byte(metrics_output))
+  globalMetrics.SetQueueSize(qSize)
+  w.Write([]byte(globalMetrics.ToPromStr()))
 }
 
 func pushToQueue(w http.ResponseWriter, req *http.Request) {
   globalServiceInfo.queue.Lock()
   if globalServiceInfo.queue.Size() == globalServiceInfo.queueSize {
     w.Write([]byte("REJECTED"))
-    globalMetrics.rejected.Sum(1)
+    globalMetrics.IncNumRejected()
     globalServiceInfo.queue.Unlock()
     return
   }
@@ -97,7 +68,7 @@ func sendToTargets(p Packet) {
     for {
       time.Sleep(time.Duration(math.Pow(10.0, 9.0)*float64(delay)))
       log.Printf("Sending to %v\n", target)
-      globalMetrics.forwarded.Inc(target)
+      globalMetrics.IncSentPkgs(target)
       res, err := http.Post(
         target,
         "text/plain",
@@ -142,7 +113,7 @@ func forward() {
 
 func main() {
   configureGlobalServiceInfo()
-  globalMetrics.forwarded = synctypes.NewMap[string]()
+  globalMetrics = ktprom.NewTopologyMetrics()
   http.HandleFunc("/", pushToQueue)
   http.HandleFunc("/metrics", exportMetrics)
   go forward()

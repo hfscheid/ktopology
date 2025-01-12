@@ -5,6 +5,7 @@ import (
   "fmt"
   "strings"
   "strconv"
+  "sync"
 
   "github.com/shirou/gopsutil/v4/cpu"
   "github.com/shirou/gopsutil/v4/mem"
@@ -16,6 +17,7 @@ type TopologyMetrics struct {
   QueueSize   int             `json:"queue_size"`
   NumRejected int             `json:"num_rejected"`
   SentPkgs    map[string]int  `json:"sent_pkgs"`
+  mx          sync.Mutex
 }
 func NewTopologyMetrics() *TopologyMetrics {
   return &TopologyMetrics{
@@ -34,20 +36,26 @@ func (t *TopologyMetrics) UpdateMem() {
 }
 
 func (t *TopologyMetrics) SetQueueSize(qs int) {
+  t.mx.Lock()
   t.QueueSize = qs
+  t.mx.Unlock()
 }
 
 func (t *TopologyMetrics) IncNumRejected() {
+  t.mx.Lock()
   t.NumRejected += 1
+  t.mx.Unlock()
 }
 
 func (t *TopologyMetrics) IncSentPkgs(addr string) {
+  t.mx.Lock()
   sentPkgs, ok := t.SentPkgs[addr]
   if !ok {
     t.SentPkgs[addr] = 1
   } else {
     t.SentPkgs[addr] = sentPkgs+1
   }
+  t.mx.Unlock()
 }
 
 func (t *TopologyMetrics) ToPromStr() string {
