@@ -26,6 +26,14 @@ metadata:
   name: k8stopology-sa
   namespace: default
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 'collector-configmap'
+data:
+  MONGO_URI: 'mongodb://mongodb:27017'
+  POLL_INTERVAL: "1"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,11 +53,9 @@ spec:
       - name: collector
         image: collector
         imagePullPolicy: Never
-        env:
-        - name: MONGO_URI
-          value: "mongodb://mongodb:27017"
-        - name: POLL_INTERVAL
-          value: "300"
+        envFrom:
+        - configMapRef:
+            name: 'collector-configmap'
         ports:
         - containerPort: 80
 ---

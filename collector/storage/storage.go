@@ -125,5 +125,9 @@ func StoreMetrics(metrics []IdMetrics) error {
   err != nil {
     return fmt.Errorf("Could not write data file: %v", err)
   }
+  if _, err := f.Write([]byte("\n"));
+  err != nil {
+    return fmt.Errorf("Could not add linebreak in data file: %v", err)
+  }
 	return nil
 }
