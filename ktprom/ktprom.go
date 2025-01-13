@@ -96,7 +96,10 @@ func popAddrValue(key string) (string, string) {
       end = i
     }
   }
-  return key[:begin], key[begin:end]
+  prefix := key[:begin]
+  label := key[begin+1:end]
+  addr := strings.Split(label,"=")[1]
+  return prefix, addr
 }
 
 func FromPromStr(s string) *TopologyMetrics {

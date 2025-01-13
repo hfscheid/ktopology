@@ -1,28 +1,23 @@
 package main
-
 import (
-  "context"
-  "fmt"
   "log"
   "os"
   "strconv"
   "time"
   "sync"
+  "fmt"
+  "io/ioutil"
+  "net/http"
 
-  "collector/ktprom"
-
-  metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-  "k8s.io/client-go/kubernetes"
-  "k8s.io/client-go/rest"
-  // "k8s.io/client-go/tools/clientcmd"
+  "collector/poddiscovery"
+  "collector/storage"
+  "collector/pkg/ktprom"
 )
 
-type IdMetrics struct {
-  id      string
-  addr    string
-  metrics *ktprom.TopologyMetrics
+var logger = log.New(os.Stdout, "[collector] ", log.Ltime)
+var httpClient = http.Client {
+  Timeout: 1 * time.Second,
 }
-
 
 func getPollInterval() time.Duration {
   var pollInterval time.Duration
@@ -40,56 +35,69 @@ func getPollInterval() time.Duration {
   return pollInterval
 }
 
-func getK8sClient() *kubernetes.Clientset {
-  config, err := rest.InClusterConfig()
+func collectMetrics(url string) (*ktprom.TopologyMetrics, error) {
+  resp, err := httpClient.Get(url)
   if err != nil {
-    log.Fatalf("Could not get in-cluster Kubernetes config: %v", err)
+    return nil, err
   }
-  clientset, err := kubernetes.NewForConfig(config)
+  defer resp.Body.Close()
+  body, err := ioutil.ReadAll(resp.Body)
   if err != nil {
-    log.Fatalf("Could not create Kubernetes clientset: %v", err)
+    return nil, err
   }
-  return clientset
+  metricsText := string(body)
+  metrics := ktprom.FromPromStr(metricsText)
+  return metrics, nil
 }
 
-func poll(k8sClient *kubernetes.Clientset, pollInterval time.Duration) {
+func poll(pod poddiscovery.PodInfo,
+          podMetricsChan chan storage.IdMetrics,
+          wg *sync.WaitGroup) {
+    defer wg.Done()
+    logger.Printf("Polling metrics from pod %v...\n", pod.IP)
+    podURL := fmt.Sprintf("http://%v/metrics", pod.IP)
+    metrics, err := collectMetrics(podURL)
+    if err != nil {
+      logger.Printf("Could not read metrics from %s: %v", podURL, err)
+      // wg.Done()
+      return
+    }
+    logger.Printf("Sending metrics %v to channel...\n", metrics)
+    podMetricsChan <- storage.IdMetrics{
+      Id: pod.Name,
+      Addr: pod.IP,
+      Host: pod.HostIP,
+      Service: pod.Service,
+      Metrics: metrics,
+    }
+    logger.Println("Metrics sent to channel")
+    // wg.Done()
+}
+
+func recurrentPoll(pollInterval time.Duration) {
   var wg sync.WaitGroup
   for {
-    log.Println("Polling Kubernetes API for Pod IPs...")
-    pods, err := k8sClient.CoreV1().
-      Pods("default").
-      List(context.TODO(), metav1.ListOptions{})
+    pods, err:= poddiscovery.ListPods()
+    logger.Println(pods)
+    numPods := len(pods)
     if err != nil {
-      log.Printf("Could not list nodes: %v", err)
-      time.Sleep(pollInterval)
-      continue
+      logger.Fatalf("Could not discover pods: %v", err)
     }
-    numPods := pods.Size()
-    log.Printf("Found %v pods in namespace \"default\"\n", numPods)
-    log.Println("Polling metrics from pods...")
     wg.Add(numPods)
-    podMetricsChan := make(chan IdMetrics, numPods)
-    for _, pod := range pods.Items {
-      podIP := pod.Status.PodIP
-      podURL := fmt.Sprintf("http://%v:8080/metrics", podIP)
-      go func() {
-        metrics, err := CollectMetrics(podURL)
-        if err != nil {
-          log.Printf("Could not read metrics from %s: %v", podURL, err)
-          return
-        }
-        podMetricsChan <- IdMetrics{id: pod.Name, addr: podIP, metrics: metrics}
-        wg.Done()
-      }()
+    podMetricsChan := make(chan storage.IdMetrics, numPods)
+    for _, pod := range pods {
+      go poll(pod, podMetricsChan, &wg)
     }
     wg.Wait()
-    podMetrics := make([]IdMetrics, 0, numPods)
+    close(podMetricsChan)
+    logger.Println("Received all pod metrics. Sending to storage...")
+    podMetrics := make([]storage.IdMetrics, 0, numPods)
     for pms, ok := <- podMetricsChan; ok; pms, ok = <-podMetricsChan {
       podMetrics = append(podMetrics, pms)
     }
-    if err := StoreMetrics(podMetrics);
+    if err := storage.StoreMetrics(podMetrics);
     err != nil {
-      log.Printf("Could not store topology: %v\n", err)
+      logger.Printf("Could not store topology: %v\n", err)
     }
     time.Sleep(pollInterval)
   }
@@ -97,6 +105,5 @@ func poll(k8sClient *kubernetes.Clientset, pollInterval time.Duration) {
 
 func main() {
   pollInterval := getPollInterval()
-  k8sClient := getK8sClient()
-  poll(k8sClient, pollInterval)
+  recurrentPoll(pollInterval)
 }

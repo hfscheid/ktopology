@@ -4,7 +4,7 @@ metadata:
   name: pod-reader
 rules:
   - apiGroups: [""]
-    resources: ["pods"]
+    resources: ["pods", "services"]
     verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -29,37 +29,37 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: coletor
+  name: collector
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: coletor
+      app: collector
   template:
     metadata:
       labels:
-        app: coletor
+        app: collector
     spec:
       serviceAccountName: k8stopology-sa
       containers:
-      - name: coletor
-        image: coletor
+      - name: collector
+        image: collector
         imagePullPolicy: Never
         env:
         - name: MONGO_URI
           value: "mongodb://mongodb:27017"
         - name: POLL_INTERVAL
-          value: "30"
+          value: "300"
         ports:
         - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: coletor
+  name: collector
 spec:
   selector:
-    app: coletor
+    app: collector
   ports:
     - protocol: TCP
       port: 80

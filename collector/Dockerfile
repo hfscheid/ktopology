@@ -1,7 +1,7 @@
 FROM golang:1.23
 
 WORKDIR /usr/src/app
-RUN mkdir ktprom
+RUN mkdir -p pkg/ktprom
 
 # copy collector/go.mod collector/go.sum ./
 COPY ktprom/ktprom.go ktprom/
