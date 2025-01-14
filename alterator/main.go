@@ -66,6 +66,6 @@ func main() {
       target := randomPick(deploymentsItems)
       randomUpdate(&deploymentsClient, &target)
     }
-    time.Sleep(10*time.Second)
+    time.Sleep(20*time.Second)
   }
 }

@@ -115,19 +115,16 @@ func StoreMetrics(metrics []IdMetrics) error {
 	// if err != nil {
 	// 	return err
 	// }
-	logger.Println("Successfully stored graph in database")
   f, err := os.OpenFile("./data.jsonl", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
   if err != nil {
     return fmt.Errorf("Could not open data file: %v", err)
   }
   defer f.Close()
+  graphData = append(graphData, '\n')
   if _, err := f.Write(graphData);
   err != nil {
     return fmt.Errorf("Could not write data file: %v", err)
   }
-  if _, err := f.Write([]byte("\n"));
-  err != nil {
-    return fmt.Errorf("Could not add linebreak in data file: %v", err)
-  }
+	logger.Println("Successfully stored graph in database")
 	return nil
 }

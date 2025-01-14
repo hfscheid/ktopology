@@ -2,14 +2,16 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: sink-configmap
+  namespace: fluxgen
 data:
-  SOURCE: 'http://service-0'
-  INTERVAL: '1.0'
+  SOURCE: 'http://service-0.default'
+  INTERVAL: '2.0'
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sink
+  namespace: fluxgen
 spec:
   replicas: 1
   selector:
@@ -35,6 +37,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: sink
+  namespace: fluxgen
 spec:
   selector:
     app: 'sink'

@@ -19,6 +19,9 @@ type Packet struct {
 }
 
 var globalMetrics *ktprom.TopologyMetrics
+var client = &http.Client{
+  Transport: &http.Transport{DisableKeepAlives: true},
+}
 
 func exportMetrics(w http.ResponseWriter, req *http.Request) {
   globalMetrics.UpdateCPU()
@@ -69,7 +72,7 @@ func sendToTargets(p Packet) {
       time.Sleep(time.Duration(math.Pow(10.0, 9.0)*float64(delay)))
       log.Printf("Sending to %v\n", target)
       globalMetrics.IncSentPkgs(target)
-      res, err := http.Post(
+      res, err := client.Post(
         target,
         "text/plain",
         strings.NewReader(

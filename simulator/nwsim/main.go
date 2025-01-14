@@ -35,7 +35,7 @@ func servicesFromGraph(g *randomflux.Graph) map[int]*services.Service {
     sink,
     rand.Intn(5)+1,
     rand.Float64()+0.5,
-    "sink",
+    "sink.fluxgen",
   )
   return sMap
 }
