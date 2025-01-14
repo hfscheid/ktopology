@@ -62,10 +62,14 @@ type Graph struct {
 // 	}
 // }
 
-func buildAddrMap(metrics []IdMetrics) map[string]string {
-  addrMap := make(map[string]string)
+func buildAddrMap(metrics []IdMetrics) map[string][]string {
+  addrMap := make(map[string][]string)
   for _, idMetrics := range metrics {
-    addrMap[idMetrics.Service] = idMetrics.Id
+    if  _, ok := addrMap[idMetrics.Service];
+        !ok {
+          addrMap[idMetrics.Service] = make([]string, 0)
+    }
+    addrMap[idMetrics.Service] = append(addrMap[idMetrics.Service], idMetrics.Id)
   }
   return addrMap
 }
@@ -87,11 +91,13 @@ func buildGraphFromMetrics(metrics []IdMetrics) *Graph {
     }
     nodes = append(nodes, node)
     for addr, _ := range podMetrics.Metrics.SentPkgs {
-      edge := Edge{
-        Source: podMetrics.Id,
-        Target: addrMap[addr],
+      for _, target := range addrMap[addr] {
+        edge := Edge{
+          Source: podMetrics.Id,
+          Target: target,
+        }
+        edges = append(edges, edge)
       }
-      edges = append(edges, edge)
     }
   }
 	graph := &Graph{
