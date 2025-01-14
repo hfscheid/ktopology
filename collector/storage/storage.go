@@ -22,14 +22,18 @@ type IdMetrics struct {
   Addr    string
   Service string
   Host    string
+  Deployment string
   Metrics *ktprom.TopologyMetrics
 }
 
 
 type Node struct {
-	ID       string                 `json:"id"`
-	Label    string                 `json:"label"`
-	Metadata map[string]interface{} `json:"metadata"`
+	ID          string                 `json:"id"`
+  Addr        string                 `json:"podIp"`
+  Host        string                 `json:"host"`
+  Service     string                 `json:"service"`
+  Deployment  string                 `json:"deployment"`
+	Metadata    map[string]interface{} `json:"metadata"`
 }
 
 type Edge struct {
@@ -80,7 +84,11 @@ func buildGraphFromMetrics(metrics []IdMetrics) *Graph {
   edges := make([]Edge, 0, len(metrics))
   for _, podMetrics := range metrics {
     node := Node{
-      ID:    podMetrics.Id,
+      ID:         podMetrics.Id,
+      Host:       podMetrics.Host,
+      Service:    podMetrics.Service,
+      Deployment: podMetrics.Deployment,
+      Addr:       podMetrics.Addr,
       Metadata: map[string]interface{}{
         "timestamp":    time.Now(),
         "cpu_usage":    podMetrics.Metrics.CPUUsage,

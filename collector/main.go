@@ -69,6 +69,7 @@ func poll(pod poddiscovery.PodInfo,
       Host: pod.HostIP,
       Service: pod.Service,
       Metrics: metrics,
+      Deployment: pod.Deployment,
     }
     logger.Println("Metrics sent to channel")
     // wg.Done()

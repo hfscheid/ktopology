@@ -9,16 +9,18 @@ import (
   "k8s.io/client-go/kubernetes"
   "k8s.io/client-go/rest"
   "k8s.io/client-go/tools/clientcmd"
-  "k8s.io/api/core/v1"
+  corev1 "k8s.io/api/core/v1"
+  appsv1 "k8s.io/api/apps/v1"
 )
 
 var logger = log.New(os.Stdout, "[poddiscovery] ", log.Ltime)
 
 type PodInfo struct {
-  Name    string
-  IP      string
-  HostIP  string
-  Service string
+  Deployment  string
+  Name        string
+  IP          string
+  HostIP      string
+  Service     string
 }
 
 func getK8sClient() *kubernetes.Clientset {
@@ -62,29 +64,45 @@ func ListPods() ([]PodInfo, error) {
     return nil, fmt.Errorf("Could not list Services: %v", err)
   }
   servicesItems := services.Items
-  podInfos := matchPodsAndServices(podsItems, servicesItems)
+  deployments, err := k8sClient.AppsV1().
+    Deployments("default").
+    List(context.Background(), metav1.ListOptions{})
+  logger.Println("Polling Kubernetes API for Deployments...")
+  if err != nil {
+    return nil, fmt.Errorf("Could not list Services: %v", err)
+  }
+  deploymentItems := deployments.Items
+  podInfos := matchPodsDeploymentsAndServices(podsItems, servicesItems, deploymentItems)
   return podInfos, nil
 }
 
-func matchPodsAndServices(podsItems []v1.Pod,
-                          servicesItems []v1.Service) []PodInfo {
+func matchPodsDeploymentsAndServices(podsItems []corev1.Pod,
+                          servicesItems []corev1.Service,
+                          deploymentItems []appsv1.Deployment) []PodInfo {
   serviceLabels := make(map[string]string)
   for _, service := range servicesItems {
     label := service.Spec.Selector["id"]
     serviceLabels[label] = fmt.Sprintf("http://%v", service.Name)
+  }
+  deploymentLabels := make(map[string]string)
+  for _, deployment := range deploymentItems {
+    label := deployment.Spec.Selector.MatchLabels["id"]
+    deploymentLabels[label] = deployment.Name
   }
   numPods := len(podsItems)
   podInfos := make([]PodInfo, 0, numPods)
   for _, pod := range podsItems {
     label := pod.Labels["id"]
     serviceAddr := serviceLabels[label]
+    deploymentName := deploymentLabels[label]
     podInfos = append(
       podInfos,
       PodInfo{
-        Name:     pod.Name,
-        IP:       pod.Status.PodIP,
-        HostIP:   pod.Status.HostIP,
-        Service:  serviceAddr,
+        Name:       pod.Name,
+        IP:         pod.Status.PodIP,
+        HostIP:     pod.Status.HostIP,
+        Service:    serviceAddr,
+        Deployment: deploymentName,
       },
     )
   }
