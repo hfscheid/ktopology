@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-  "svcsim/ktprom"
+  "github.com/hfscheid/ktopology/ktmodel"
 )
 
 type Packet struct {
@@ -18,7 +18,7 @@ type Packet struct {
   value float64
 }
 
-var globalMetrics *ktprom.TopologyMetrics
+var globalMetrics *ktmodel.TopologyMetrics
 var client = &http.Client{
   Transport: &http.Transport{DisableKeepAlives: true},
 }
@@ -116,7 +116,7 @@ func forward() {
 
 func main() {
   configureGlobalServiceInfo()
-  globalMetrics = ktprom.NewTopologyMetrics()
+  globalMetrics = ktmodel.NewTopologyMetrics()
   http.HandleFunc("/", pushToQueue)
   http.HandleFunc("/metrics", exportMetrics)
   go forward()

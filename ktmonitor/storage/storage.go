@@ -8,7 +8,7 @@ import (
   "os"
   "time"
 
-  "github.com/hfscheid/ktopology/ktprom"
+  "github.com/hfscheid/ktopology/ktmodel"
   "github.com/hfscheid/ktopology/ktgraph"
   // "go.mongodb.org/mongo-driver/mongo"
   // "go.mongodb.org/mongo-driver/mongo/options"
@@ -23,7 +23,7 @@ type IdMetrics struct {
   Service string
   Host    string
   Deployment string
-  Metrics *ktprom.TopologyMetrics
+  Metrics *ktmodel.TopologyMetrics
 }
 
 // type Node struct {

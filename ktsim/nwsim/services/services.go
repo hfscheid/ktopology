@@ -37,7 +37,7 @@ func (s *Service) AddTarget(t *Service,
 func (s *Service) Deployment() []byte {
   return []byte(fmt.Sprintf(
 `apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: 'service-%v'
 spec:
@@ -45,7 +45,6 @@ spec:
   selector:
     matchLabels:
       id: '%v'
-  serviceName: "service-%v"
   template:
     metadata:
       labels:
@@ -60,7 +59,7 @@ spec:
         envFrom:
         - configMapRef:
             name: configmap-%v`,
-    s.id, s.id, s.id, s.id, s.id))
+    s.id, s.id, s.id, s.id))
 }
 
 func (s *Service) Service() []byte {
