@@ -9,12 +9,12 @@ import (
   "io/ioutil"
   "net/http"
 
-  "collector/poddiscovery"
-  "collector/storage"
-  "collector/pkg/ktprom"
+  "github.com/hfscheid/ktopology/ktmonitor/poddiscovery"
+  "github.com/hfscheid/ktopology/ktmonitor/storage"
+  "github.com/hfscheid/ktopology/ktmodel"
 )
 
-var logger = log.New(os.Stdout, "[collector] ", log.Ltime)
+var logger = log.New(os.Stdout, "[ktmonitor] ", log.Ltime)
 var httpClient = http.Client {
   Timeout: 1 * time.Second,
 }
@@ -35,7 +35,7 @@ func getPollInterval() time.Duration {
   return pollInterval
 }
 
-func collectMetrics(url string) (*ktprom.TopologyMetrics, error) {
+func collectMetrics(url string) (*ktmodel.TopologyMetrics, error) {
   resp, err := httpClient.Get(url)
   if err != nil {
     return nil, err
@@ -46,7 +46,7 @@ func collectMetrics(url string) (*ktprom.TopologyMetrics, error) {
     return nil, err
   }
   metricsText := string(body)
-  metrics := ktprom.FromPromStr(metricsText)
+  metrics := ktmodel.FromPromStr(metricsText)
   return metrics, nil
 }
 

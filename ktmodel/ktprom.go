@@ -1,4 +1,4 @@
-package ktprom
+package ktmodel
 
 import (
   "time"

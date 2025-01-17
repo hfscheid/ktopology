@@ -1,17 +1,17 @@
 package storage
 
 import (
-	// "context"
+  // "context"
   "encoding/json"
-	"log"
+  "log"
   "fmt"
-	"os"
-	"time"
+  "os"
+  "time"
 
-  "collector/pkg/ktprom"
-
-	// "go.mongodb.org/mongo-driver/mongo"
-	// "go.mongodb.org/mongo-driver/mongo/options"
+  "github.com/hfscheid/ktopology/ktprom"
+  "github.com/hfscheid/ktopology/ktgraph"
+  // "go.mongodb.org/mongo-driver/mongo"
+  // "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // var client *mongo.Client
@@ -26,44 +26,43 @@ type IdMetrics struct {
   Metrics *ktprom.TopologyMetrics
 }
 
-
-type Node struct {
-	ID          string                 `json:"id"`
-  Addr        string                 `json:"podIp"`
-  Host        string                 `json:"host"`
-  Service     string                 `json:"service"`
-  Deployment  string                 `json:"deployment"`
-	Metadata    map[string]interface{} `json:"metadata"`
-}
-
-type Edge struct {
-	Source string `json:"source"`
-	Target string `json:"target"`
-}
-
-type Graph struct {
-	Nodes []Node `json:"nodes"`
-	Edges []Edge `json:"edges"`
-}
+// type Node struct {
+//  ID          string                 `json:"id"`
+//   Addr        string                 `json:"podIp"`
+//   Host        string                 `json:"host"`
+//   Service     string                 `json:"service"`
+//   Deployment  string                 `json:"deployment"`
+//  Metadata    map[string]interface{} `json:"metadata"`
+// }
+// 
+// type Edge struct {
+//  Source string `json:"source"`
+//  Target string `json:"target"`
+// }
+// 
+// type Graph struct {
+//  Nodes []Node `json:"nodes"`
+//  Edges []Edge `json:"edges"`
+// }
 
 // func init() {
-// 	var err error
+//  var err error
 // 
-// 	mongoURI := os.Getenv("MONGO_URI")
-// 	if mongoURI == "" {
-// 		mongoURI = "mongodb://localhost:27017"
-// 	}
+//  mongoURI := os.Getenv("MONGO_URI")
+//  if mongoURI == "" {
+//    mongoURI = "mongodb://localhost:27017"
+//  }
 // 
-// 	clientOptions := options.Client().ApplyURI(mongoURI)
-// 	client, err = mongo.Connect(context.TODO(), clientOptions)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+//  clientOptions := options.Client().ApplyURI(mongoURI)
+//  client, err = mongo.Connect(context.TODO(), clientOptions)
+//  if err != nil {
+//    log.Fatal(err)
+//  }
 // 
-// 	err = client.Ping(context.TODO(), nil)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+//  err = client.Ping(context.TODO(), nil)
+//  if err != nil {
+//    log.Fatal(err)
+//  }
 // }
 
 func buildAddrMap(metrics []IdMetrics) map[string][]string {
@@ -78,12 +77,12 @@ func buildAddrMap(metrics []IdMetrics) map[string][]string {
   return addrMap
 }
 
-func buildGraphFromMetrics(metrics []IdMetrics) *Graph {
+func buildGraphFromMetrics(metrics []IdMetrics) *ktgraph.Graph {
   addrMap := buildAddrMap(metrics)
-  nodes := make([]Node, 0, len(metrics))
-  edges := make([]Edge, 0, len(metrics))
+  nodes := make([]ktgraph.Node, 0, len(metrics))
+  edges := make([]ktgraph.Edge, 0, len(metrics))
   for _, podMetrics := range metrics {
-    node := Node{
+    node := ktgraph.Node{
       ID:         podMetrics.Id,
       Host:       podMetrics.Host,
       Service:    podMetrics.Service,
@@ -100,7 +99,7 @@ func buildGraphFromMetrics(metrics []IdMetrics) *Graph {
     nodes = append(nodes, node)
     for addr, _ := range podMetrics.Metrics.SentPkgs {
       for _, target := range addrMap[addr] {
-        edge := Edge{
+        edge := ktgraph.Edge{
           Source: podMetrics.Id,
           Target: target,
         }
@@ -108,27 +107,27 @@ func buildGraphFromMetrics(metrics []IdMetrics) *Graph {
       }
     }
   }
-	graph := &Graph{
-		Nodes: nodes,
-		Edges: edges,
-	}
+  graph := &ktgraph.Graph{
+    Nodes: nodes,
+    Edges: edges,
+  }
   return graph
 }
 
 func StoreMetrics(metrics []IdMetrics) error {
-	// collection := client.Database("metricsdb").Collection("graphs")
-	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	// defer cancel()
+  // collection := client.Database("metricsdb").Collection("graphs")
+  // ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+  // defer cancel()
   graph := buildGraphFromMetrics(metrics)
   graphData, err := json.Marshal(*graph)
   if err != nil {
     return fmt.Errorf("Could not marshal graphData: %v", err)
   }
   logger.Print(string(graphData))
-	// _, err := collection.InsertOne(ctx, graph)
-	// if err != nil {
-	// 	return err
-	// }
+  // _, err := collection.InsertOne(ctx, graph)
+  // if err != nil {
+  //  return err
+  // }
   f, err := os.OpenFile("./data.jsonl", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
   if err != nil {
     return fmt.Errorf("Could not open data file: %v", err)
@@ -139,6 +138,6 @@ func StoreMetrics(metrics []IdMetrics) error {
   err != nil {
     return fmt.Errorf("Could not write data file: %v", err)
   }
-	logger.Println("Successfully stored graph in database")
-	return nil
+  logger.Println("Successfully stored graph in database")
+  return nil
 }

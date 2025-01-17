@@ -1,6 +1,6 @@
 package main
 import (
-  "collector/poddiscovery"
+  "testpoddiscovery/poddiscovery"
   "fmt"
 )
 

@@ -1,4 +1,4 @@
-module ktprom
+module github.com/hfscheid/ktopology/ktmodel
 
 go 1.22.0
 

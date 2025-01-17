@@ -1,11 +1,11 @@
 FROM golang:1.23
 
 WORKDIR /usr/src/app
-RUN mkdir -p pkg/ktprom
+# RUN mkdir -p pkg/ktprom
 
 # copy collector/go.mod collector/go.sum ./
-COPY ktprom/ktprom.go ktprom/
-COPY collector/ .
+# COPY ktprom/ktprom.go ktprom/
+COPY . .
 RUN go mod tidy
 
 RUN go build -v -o /usr/local/bin/app ./.
