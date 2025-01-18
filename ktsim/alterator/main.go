@@ -3,6 +3,7 @@ import (
   "context"
   "log"
   "os"
+  "path"
   "math/rand"
   "time"
 
@@ -16,7 +17,8 @@ import (
 var logger = log.New(os.Stdout, "[alterator] ", log.Ltime)
 
 func getK8sClient() *kubernetes.Clientset {
-  config, err := clientcmd.BuildConfigFromFlags("", "/Users/henriquefurst/.kube/config")
+  homedir, _ := os.UserHomeDir()
+  config, err := clientcmd.BuildConfigFromFlags("", path.Join(homedir, ".kube/config"))
   if err != nil {
     logger.Fatalf("Could not get Kubernetes config: %v", err)
   }
@@ -31,8 +33,8 @@ func randomPick(ds []appsv1.Deployment) appsv1.Deployment {
   var pick appsv1.Deployment
   for {
     pick = ds[rand.Intn(len(ds))]
-    if  pick.Name != "collector" &&
-        pick.Name != "collector-mongodb" &&
+    if  pick.Name != "ktmonitor" &&
+        pick.Name != "ktmonitor-mongodb" &&
         pick.Name != "sink" {
       break
     }
@@ -62,6 +64,10 @@ func main() {
   for {
     deployments, _ := deploymentsClient.List(context.Background(), metav1.ListOptions{})
     deploymentsItems := deployments.Items
+    // log.Printf("Found: %v\n", deploymentsItems) 
+    if len(deploymentsItems) == 0 {
+      break
+    }
     for i := rand.Intn(3); i > 0; i-- {
       target := randomPick(deploymentsItems)
       randomUpdate(&deploymentsClient, &target)

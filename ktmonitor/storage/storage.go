@@ -6,10 +6,10 @@ import (
   "log"
   "fmt"
   "os"
-  "time"
+  // "time"
 
   "github.com/hfscheid/ktopology/ktmodel"
-  "github.com/hfscheid/ktopology/ktgraph"
+  // "github.com/hfscheid/ktopology/ktgraph"
   // "go.mongodb.org/mongo-driver/mongo"
   // "go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -17,14 +17,14 @@ import (
 // var client *mongo.Client
 var logger = log.New(os.Stdout, "[storage] ", log.Ltime)
 
-type IdMetrics struct {
-  Id      string
-  Addr    string
-  Service string
-  Host    string
-  Deployment string
-  Metrics *ktmodel.TopologyMetrics
-}
+// type IdMetrics struct {
+//   Id      string
+//   Addr    string
+//   Service string
+//   Host    string
+//   Deployment string
+//   Metrics *ktmodel.TopologyMetrics
+// }
 
 // type Node struct {
 //  ID          string                 `json:"id"`
@@ -65,60 +65,60 @@ type IdMetrics struct {
 //  }
 // }
 
-func buildAddrMap(metrics []IdMetrics) map[string][]string {
-  addrMap := make(map[string][]string)
-  for _, idMetrics := range metrics {
-    if  _, ok := addrMap[idMetrics.Service];
-        !ok {
-          addrMap[idMetrics.Service] = make([]string, 0)
-    }
-    addrMap[idMetrics.Service] = append(addrMap[idMetrics.Service], idMetrics.Id)
-  }
-  return addrMap
-}
+// func buildAddrMap(metrics []IdMetrics) map[string][]string {
+//   addrMap := make(map[string][]string)
+//   for _, idMetrics := range metrics {
+//     if  _, ok := addrMap[idMetrics.Service];
+//         !ok {
+//           addrMap[idMetrics.Service] = make([]string, 0)
+//     }
+//     addrMap[idMetrics.Service] = append(addrMap[idMetrics.Service], idMetrics.Id)
+//   }
+//   return addrMap
+// }
+// 
+// func buildGraphFromMetrics(metrics []IdMetrics) *ktgraph.Graph {
+//   addrMap := buildAddrMap(metrics)
+//   nodes := make([]ktgraph.Node, 0, len(metrics))
+//   edges := make([]ktgraph.Edge, 0, len(metrics))
+//   for _, podMetrics := range metrics {
+//     node := ktgraph.Node{
+//       ID:         podMetrics.Id,
+//       Host:       podMetrics.Host,
+//       Service:    podMetrics.Service,
+//       Deployment: podMetrics.Deployment,
+//       Addr:       podMetrics.Addr,
+//       Metadata: map[string]interface{}{
+//         "timestamp":    time.Now(),
+//         "cpu_usage":    podMetrics.Metrics.CPUUsage,
+//         "mem_usage":    podMetrics.Metrics.MemUsage,
+//         "queue_size":   podMetrics.Metrics.QueueSize,
+//         "num_rejected": podMetrics.Metrics.NumRejected,
+//       },
+//     }
+//     nodes = append(nodes, node)
+//     for addr, _ := range podMetrics.Metrics.SentPkgs {
+//       for _, target := range addrMap[addr] {
+//         edge := ktgraph.Edge{
+//           Source: podMetrics.Id,
+//           Target: target,
+//         }
+//         edges = append(edges, edge)
+//       }
+//     }
+//   }
+//   graph := &ktgraph.Graph{
+//     Nodes: nodes,
+//     Edges: edges,
+//   }
+//   return graph
+// }
 
-func buildGraphFromMetrics(metrics []IdMetrics) *ktgraph.Graph {
-  addrMap := buildAddrMap(metrics)
-  nodes := make([]ktgraph.Node, 0, len(metrics))
-  edges := make([]ktgraph.Edge, 0, len(metrics))
-  for _, podMetrics := range metrics {
-    node := ktgraph.Node{
-      ID:         podMetrics.Id,
-      Host:       podMetrics.Host,
-      Service:    podMetrics.Service,
-      Deployment: podMetrics.Deployment,
-      Addr:       podMetrics.Addr,
-      Metadata: map[string]interface{}{
-        "timestamp":    time.Now(),
-        "cpu_usage":    podMetrics.Metrics.CPUUsage,
-        "mem_usage":    podMetrics.Metrics.MemUsage,
-        "queue_size":   podMetrics.Metrics.QueueSize,
-        "num_rejected": podMetrics.Metrics.NumRejected,
-      },
-    }
-    nodes = append(nodes, node)
-    for addr, _ := range podMetrics.Metrics.SentPkgs {
-      for _, target := range addrMap[addr] {
-        edge := ktgraph.Edge{
-          Source: podMetrics.Id,
-          Target: target,
-        }
-        edges = append(edges, edge)
-      }
-    }
-  }
-  graph := &ktgraph.Graph{
-    Nodes: nodes,
-    Edges: edges,
-  }
-  return graph
-}
-
-func StoreMetrics(metrics []IdMetrics) error {
+func StoreMetrics(tData []ktmodel.TopologyData) error {
   // collection := client.Database("metricsdb").Collection("graphs")
   // ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
   // defer cancel()
-  graph := buildGraphFromMetrics(metrics)
+  graph := ktmodel.BuildNwTopologyFromData(tData)
   graphData, err := json.Marshal(*graph)
   if err != nil {
     return fmt.Errorf("Could not marshal graphData: %v", err)

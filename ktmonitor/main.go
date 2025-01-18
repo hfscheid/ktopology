@@ -51,7 +51,7 @@ func collectMetrics(url string) (*ktmodel.TopologyMetrics, error) {
 }
 
 func poll(pod poddiscovery.PodInfo,
-          podMetricsChan chan storage.IdMetrics,
+          topDataChan chan ktmodel.TopologyData,
           wg *sync.WaitGroup) {
     defer wg.Done()
     logger.Printf("Polling metrics from pod %v...\n", pod.IP)
@@ -63,12 +63,12 @@ func poll(pod poddiscovery.PodInfo,
       return
     }
     logger.Printf("Sending metrics %v to channel...\n", metrics)
-    podMetricsChan <- storage.IdMetrics{
-      Id: pod.Name,
+    topDataChan <- ktmodel.TopologyData {
+      ID: pod.Name,
       Addr: pod.IP,
       Host: pod.HostIP,
       Service: pod.Service,
-      Metrics: metrics,
+      Metrics: *metrics,
       Deployment: pod.Deployment,
     }
     logger.Println("Metrics sent to channel")
@@ -85,18 +85,18 @@ func recurrentPoll(pollInterval time.Duration) {
       logger.Fatalf("Could not discover pods: %v", err)
     }
     wg.Add(numPods)
-    podMetricsChan := make(chan storage.IdMetrics, numPods)
+    topDataChan := make(chan ktmodel.TopologyData, numPods)
     for _, pod := range pods {
-      go poll(pod, podMetricsChan, &wg)
+      go poll(pod, topDataChan, &wg)
     }
     wg.Wait()
-    close(podMetricsChan)
+    close(topDataChan)
     logger.Println("Received all pod metrics. Sending to storage...")
-    podMetrics := make([]storage.IdMetrics, 0, numPods)
-    for pms, ok := <- podMetricsChan; ok; pms, ok = <-podMetricsChan {
-      podMetrics = append(podMetrics, pms)
+    topData := make([]ktmodel.TopologyData, 0, numPods)
+    for pms, ok := <- topDataChan; ok; pms, ok = <-topDataChan {
+      topData = append(topData, pms)
     }
-    if err := storage.StoreMetrics(podMetrics);
+    if err := storage.StoreMetrics(topData);
     err != nil {
       logger.Printf("Could not store topology: %v\n", err)
     }
