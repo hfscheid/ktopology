@@ -2,7 +2,10 @@ module github.com/hfscheid/ktopology/ktmodel
 
 go 1.22.0
 
-require github.com/shirou/gopsutil/v4 v4.24.12
+require (
+	github.com/dominikbraun/graph v0.23.0
+	github.com/shirou/gopsutil/v4 v4.24.12
+)
 
 require (
 	github.com/ebitengine/purego v0.8.1 // indirect
