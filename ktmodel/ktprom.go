@@ -78,8 +78,11 @@ mem_usage %.3f
 num_rejected %v
 # HELP Queue size
 # TYPE queue_size gauge
-queue_size %v`,
-  t.CPUUsage, t.MemUsage, t.NumRejected, t.QueueSize)
+queue_size %v
+# HELP Queue use
+# TYPE queue_use gauge
+queue_use %v`,
+  t.CPUUsage, t.MemUsage, t.NumRejected, t.QueueSize, t.QueueUse)
   for addr, count := range t.SentPkgs {
     str += fmt.Sprintf(
 `
