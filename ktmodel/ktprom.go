@@ -15,6 +15,7 @@ type TopologyMetrics struct {
   CPUUsage    float64         `json:"cpu_usage"`
   MemUsage    float64         `json:"mem_usage"`
   QueueSize   int             `json:"queue_size"`
+  QueueUse    int             `json:"queue_use"`
   NumRejected int             `json:"num_rejected"`
   SentPkgs    map[string]int  `json:"sent_pkgs"`
   mx          sync.Mutex
@@ -38,6 +39,12 @@ func (t *TopologyMetrics) UpdateMem() {
 func (t *TopologyMetrics) SetQueueSize(qs int) {
   t.mx.Lock()
   t.QueueSize = qs
+  t.mx.Unlock()
+}
+
+func (t *TopologyMetrics) SetQueueUse(qu int) {
+  t.mx.Lock()
+  t.QueueUse = qu
   t.mx.Unlock()
 }
 
@@ -123,6 +130,8 @@ func FromPromStr(s string) *TopologyMetrics {
       metrics.MemUsage, _ = strconv.ParseFloat(valueStr, 64)
     case "queue_size":
       metrics.QueueSize, _ = strconv.Atoi(valueStr)
+    case "queue_use":
+      metrics.QueueUse, _ = strconv.Atoi(valueStr)
     case "num_rejected":
       metrics.NumRejected, _ = strconv.Atoi(valueStr)
     case "forwarded_count":

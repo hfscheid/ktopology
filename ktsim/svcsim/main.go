@@ -27,9 +27,10 @@ func exportMetrics(w http.ResponseWriter, req *http.Request) {
   globalMetrics.UpdateCPU()
   globalMetrics.UpdateMem()
   globalServiceInfo.queue.Lock()
-  qSize := globalServiceInfo.queue.Size()
+  qUse := globalServiceInfo.queue.Size()
   globalServiceInfo.queue.Unlock()
-  globalMetrics.SetQueueSize(qSize)
+  globalMetrics.SetQueueSize(globalServiceInfo.queueSize)
+  globalMetrics.SetQueueUse(qUse)
   w.Write([]byte(globalMetrics.ToPromStr()))
 }
 
