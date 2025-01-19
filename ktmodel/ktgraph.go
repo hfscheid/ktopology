@@ -15,7 +15,7 @@ type TopologyData struct {
   Service     string          `json:"host"`
   Host        string          `json:"service"`
   Deployment  string          `json:"deployment"`
-  Metrics     TopologyMetrics `json:"metadata"`
+  Metrics     TopologyMetrics `json:"metrics"`
 }
 
 func (t *TopologyData) StringMap() map[string]string {
@@ -33,10 +33,25 @@ type edge struct {
   Target string `json:"target"`
 }
 
+type NwCalculus func([]TopologyData)(string, float64)
+
 type NwTopology struct {
-  Timestamp time.Time       `json:"timestamp"`
-  Nodes     []TopologyData  `json:"nodes"`
-  Edges     []edge          `json:"edges"`
+  Timestamp time.Time           `json:"timestamp"`
+  Nodes     []TopologyData      `json:"nodes"`
+  Edges     []edge              `json:"edges"`
+  NwData    map[string]float64  `json:"network_data"`
+  nwOps     []NwCalculus        `json:"-"`
+}
+
+func (g *NwTopology) AddNwCalculus(nwc NwCalculus) {
+  g.nwOps = append(g.nwOps, nwc)
+}
+
+func (g *NwTopology) DoNwCalculus() {
+  for i := range g.nwOps {
+    key, value := g.nwOps[i](g.Nodes)
+    g.NwData[key] = value
+  }
 }
 
 func (g *NwTopology) ToJSON() ([]byte, error) {
