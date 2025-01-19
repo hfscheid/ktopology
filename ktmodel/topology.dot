@@ -1,40 +1,20 @@
 strict digraph {
 
 
-	"service-1-78d79f5b5d-9tp2w" [ cpu_usage="49.29", mem_usage="21.14", num_rejected="5435", queue_size="9", queue_use="0",  weight=0 ];
+	"service-3-5dfd5f87b4-qbm7w" [ num_rejected="0", queue_size="5", queue_use="1",  weight=0 ];
 
-	"service-1-78d79f5b5d-9tp2w" -> "service-3-7cfc455678-9gwfn" [  weight=0 ];
+	"service-0-5c5ccd6cfd-gt9sk" [ num_rejected="2", queue_size="7", queue_use="7",  weight=0 ];
 
-	"service-1-78d79f5b5d-9tp2w" -> "service-4-79474fd958-cgxwm" [  weight=0 ];
+	"service-0-5c5ccd6cfd-gt9sk" -> "service-2-7d8b647fdb-zh2v8" [  weight=0 ];
 
-	"service-1-78d79f5b5d-9tp2w" -> "service-2-6885c9bdf4-pdrcp" [  weight=0 ];
+	"service-0-5c5ccd6cfd-gt9sk" -> "service-1-6db49ffd76-v642w" [  weight=0 ];
 
-	"service-1-78d79f5b5d-9tp2w" -> "service-3-7cfc455678-hx8bc" [  weight=0 ];
+	"service-1-6db49ffd76-v642w" [ num_rejected="0", queue_size="6", queue_use="0",  weight=0 ];
 
-	"service-2-6885c9bdf4-pdrcp" [ cpu_usage="49.29", mem_usage="21.14", num_rejected="27", queue_size="0", queue_use="0",  weight=0 ];
+	"service-1-6db49ffd76-v642w" -> "service-3-5dfd5f87b4-qbm7w" [  weight=0 ];
 
-	"service-2-6885c9bdf4-pdrcp" -> "service-4-79474fd958-cgxwm" [  weight=0 ];
+	"service-2-7d8b647fdb-zh2v8" [ num_rejected="0", queue_size="11", queue_use="0",  weight=0 ];
 
-	"service-3-7cfc455678-hx8bc" [ cpu_usage="49.29", mem_usage="21.14", num_rejected="0", queue_size="0", queue_use="0",  weight=0 ];
-
-	"service-3-7cfc455678-hx8bc" -> "service-4-79474fd958-cgxwm" [  weight=0 ];
-
-	"service-0-84c7897494-dvs4z" [ cpu_usage="49.29", mem_usage="21.14", num_rejected="8", queue_size="7", queue_use="0",  weight=0 ];
-
-	"service-0-84c7897494-dvs4z" -> "service-1-78d79f5b5d-9tp2w" [  weight=0 ];
-
-	"service-0-84c7897494-zc7vw" [ cpu_usage="49.32", mem_usage="21.14", num_rejected="19", queue_size="7", queue_use="0",  weight=0 ];
-
-	"service-0-84c7897494-zc7vw" -> "service-1-78d79f5b5d-9tp2w" [  weight=0 ];
-
-	"service-0-84c7897494-dk7zf" [ cpu_usage="49.29", mem_usage="21.14", num_rejected="270", queue_size="7", queue_use="0",  weight=0 ];
-
-	"service-0-84c7897494-dk7zf" -> "service-1-78d79f5b5d-9tp2w" [  weight=0 ];
-
-	"service-4-79474fd958-cgxwm" [ cpu_usage="49.35", mem_usage="21.14", num_rejected="1032", queue_size="0", queue_use="0",  weight=0 ];
-
-	"service-3-7cfc455678-9gwfn" [ cpu_usage="49.29", mem_usage="21.14", num_rejected="0", queue_size="0", queue_use="0",  weight=0 ];
-
-	"service-3-7cfc455678-9gwfn" -> "service-4-79474fd958-cgxwm" [  weight=0 ];
+	"service-2-7d8b647fdb-zh2v8" -> "service-3-5dfd5f87b4-qbm7w" [  weight=0 ];
 
 }

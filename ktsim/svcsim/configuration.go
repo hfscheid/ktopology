@@ -4,21 +4,28 @@ import (
   "log"
   "strconv"
   "strings"
+  "sync"
 
-  "svcsim/synctypes"
+  // "svcsim/synctypes"
 )
 var globalServiceInfo struct {
   id          int
-  queue       synctypes.Array[Packet]
+  queue       []Packet
   queueSize   int
   transforms  map[string]float64
   delays      map[string]int
+  numRejected int
+  sentMsgs    map[string]int
+  queuemx     sync.Mutex
+  nrejmx      sync.Mutex
+  sentmx      sync.Mutex
   // reg         *prometheus.Registry
 }
 
 func configureGlobalServiceInfo() {
-  globalServiceInfo.queue = synctypes.NewArray[Packet]()
+  globalServiceInfo.queue = make([]Packet, 0)
   globalServiceInfo.transforms = make(map[string]float64)
+  globalServiceInfo.sentMsgs = make(map[string]int)
   globalServiceInfo.delays = make(map[string]int)
 
   globalServiceInfo.id, _   = strconv.Atoi(os.Getenv("ID"))

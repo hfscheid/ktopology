@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-  "github.com/hfscheid/ktopology/ktmodel"
+  // "github.com/hfscheid/ktopology/ktmodel"
 )
 
 type Packet struct {
@@ -18,28 +18,50 @@ type Packet struct {
   value float64
 }
 
-var globalMetrics *ktmodel.TopologyMetrics
 var client = &http.Client{
   Transport: &http.Transport{DisableKeepAlives: true},
 }
 
 func exportMetrics(w http.ResponseWriter, req *http.Request) {
-  globalMetrics.UpdateCPU()
-  globalMetrics.UpdateMem()
-  globalServiceInfo.queue.Lock()
-  qUse := globalServiceInfo.queue.Size()
-  globalServiceInfo.queue.Unlock()
-  globalMetrics.SetQueueSize(globalServiceInfo.queueSize)
-  globalMetrics.SetQueueUse(qUse)
-  w.Write([]byte(globalMetrics.ToPromStr()))
+  globalServiceInfo.queuemx.Lock()
+  qUse := len(globalServiceInfo.queue)
+  globalServiceInfo.queuemx.Unlock()
+  promStr := fmt.Sprintf(
+`# HELP number of rejected messages due to full queue
+# TYPE num_rejected counter
+num_rejected %v
+# HELP Queue size
+# TYPE queue_size gauge
+queue_size %v
+# HELP Queue use
+# TYPE queue_use gauge
+queue_use %v`,
+    globalServiceInfo.numRejected,
+    globalServiceInfo.queueSize,
+    qUse,
+  )
+  for k, v := range globalServiceInfo.sentMsgs {
+    promStr += fmt.Sprintf(`
+# HELP Number of successfully forwarded messages to %v
+# TYPE forwarded_count counter
+forwarded_count{addr=%v} %v`,
+      k, k, v,
+    )
+  }
+  w.Write([]byte(promStr))
+  globalServiceInfo.nrejmx.Lock()
+  globalServiceInfo.numRejected = 0
+  globalServiceInfo.nrejmx.Unlock()
 }
 
 func pushToQueue(w http.ResponseWriter, req *http.Request) {
-  globalServiceInfo.queue.Lock()
-  if globalServiceInfo.queue.Size() == globalServiceInfo.queueSize {
+  globalServiceInfo.queuemx.Lock()
+  if len(globalServiceInfo.queue) == globalServiceInfo.queueSize {
+    globalServiceInfo.queuemx.Unlock()
+    globalServiceInfo.nrejmx.Lock()
+    globalServiceInfo.numRejected += 1
+    globalServiceInfo.nrejmx.Unlock()
     w.Write([]byte("REJECTED"))
-    globalMetrics.IncNumRejected()
-    globalServiceInfo.queue.Unlock()
     return
   }
 
@@ -59,10 +81,11 @@ func pushToQueue(w http.ResponseWriter, req *http.Request) {
     return
   }
 
-  globalServiceInfo.queue.Push(
+  globalServiceInfo.queue = append(
+    globalServiceInfo.queue, 
     Packet{pId, pVal},
   )
-  globalServiceInfo.queue.Unlock()
+  globalServiceInfo.queuemx.Unlock()
   w.Write([]byte("OK"))
 }
 
@@ -72,7 +95,9 @@ func sendToTargets(p Packet) {
     for {
       time.Sleep(time.Duration(math.Pow(10.0, 9.0)*float64(delay)))
       log.Printf("Sending to %v\n", target)
-      globalMetrics.IncSentPkgs(target)
+      globalServiceInfo.sentmx.Lock()
+      globalServiceInfo.sentMsgs[target] = 1
+      globalServiceInfo.sentmx.Unlock()
       res, err := client.Post(
         target,
         "text/plain",
@@ -103,13 +128,14 @@ func sendToTargets(p Packet) {
 
 func forward() {
   for {
-    globalServiceInfo.queue.Lock()
-    if globalServiceInfo.queue.Size() > 0 {
-      p := globalServiceInfo.queue.Pop()
-      globalServiceInfo.queue.Unlock()
+    globalServiceInfo.queuemx.Lock()
+    if len(globalServiceInfo.queue) > 0 {
+      p := globalServiceInfo.queue[0]
+      globalServiceInfo.queue = globalServiceInfo.queue[1:]
+      globalServiceInfo.queuemx.Unlock()
       sendToTargets(p)
     } else {
-      globalServiceInfo.queue.Unlock()
+      globalServiceInfo.queuemx.Unlock()
     }
   }
 }
@@ -117,7 +143,7 @@ func forward() {
 
 func main() {
   configureGlobalServiceInfo()
-  globalMetrics = ktmodel.NewTopologyMetrics()
+  // globalMetrics = ktmodel.NewTopologyMetrics()
   http.HandleFunc("/", pushToQueue)
   http.HandleFunc("/metrics", exportMetrics)
   go forward()
