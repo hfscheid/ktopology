@@ -48,6 +48,7 @@ func (g *NwTopology) AddNwCalculus(nwc NwCalculus) {
 }
 
 func (g *NwTopology) DoNwCalculus() {
+  g.NwData = make(map[string]float64)
   for i := range g.nwOps {
     key, value := g.nwOps[i](g.Nodes)
     g.NwData[key] = value
