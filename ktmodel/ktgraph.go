@@ -19,13 +19,11 @@ type TopologyData struct {
 }
 
 func (t *TopologyData) StringMap() map[string]string {
-  return map[string]string {
-    "cpu_usage": fmt.Sprintf("%.2f", t.Metrics.CPUUsage),
-    "mem_usage": fmt.Sprintf("%.2f", t.Metrics.MemUsage),
-    "queue_size": fmt.Sprintf("%v", t.Metrics.QueueSize),
-    "queue_use": fmt.Sprintf("%v", t.Metrics.QueueUse),
-    "num_rejected": fmt.Sprintf("%v", t.Metrics.NumRejected),
+  sm := make(map[string]string)
+  for k, v := range t.Metrics.Metrics {
+    sm[k] = fmt.Sprintf("%v", v)
   }
+  return sm
 }
 
 type edge struct {
@@ -118,7 +116,7 @@ func BuildNwTopologyFromData(tData []TopologyData) *NwTopology {
   addrMap := buildAddrMap(tData)
   edges := make([]edge, 0, len(tData))
   for i := range tData {
-    for addr, _ := range tData[i].Metrics.SentPkgs {
+    for addr := range tData[i].Metrics.SentPkgs {
       for _, target := range addrMap[addr] {
         edge := edge{
           Source: tData[i].ID,
