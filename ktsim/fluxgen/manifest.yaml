@@ -5,7 +5,7 @@ metadata:
   namespace: fluxgen
 data:
   SOURCE: 'http://service-0.default'
-  INTERVAL: '2.0'
+  INTERVAL: '0.25'
 ---
 apiVersion: apps/v1
 kind: Deployment
