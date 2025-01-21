@@ -47,7 +47,7 @@ func randomUpdate(dc *typedappsv1.DeploymentInterface,
   replicas := *(d.Spec.Replicas)
   var newReplicas int32
   for {
-    newReplicas = int32(rand.Intn(4)+1)
+    newReplicas = int32(rand.Intn(3)+1)
     if  newReplicas > 0 &&
         newReplicas != replicas {
       break
@@ -68,10 +68,10 @@ func main() {
     if len(deploymentsItems) == 0 {
       break
     }
-    for i := rand.Intn(3); i > 0; i-- {
+    for i := rand.Intn(5); i > 0; i-- {
       target := randomPick(deploymentsItems)
       randomUpdate(&deploymentsClient, &target)
     }
-    time.Sleep(60*time.Second)
+    time.Sleep(10*time.Second)
   }
 }
