@@ -1,17 +1,21 @@
 import os
+import json
+import numpy as np
 import pandas as pd
-import torch
-from torch_geometric.data import Data, DataLoader
-from torch_geometric.nn import GCNConv
-from torch.nn import Linear
-from torch.nn.functional import cross_entropy
+import tensorflow as tf
+from spektral.data import Dataset, Graph
+from spektral.data.loaders import SingleLoader
+from spektral.layers import GCNConv
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
 
 # Função para carregar os dados
 def load_data(file_path):
     data = []
     with open(file_path, 'r') as f:
         for line in f:
-            data.append(eval(line))
+            data.append(json.loads(line))
     return data
 
 # Função para processar os dados em grafos
@@ -22,63 +26,64 @@ def process_data(data):
     for entry in data:
         nodes.extend(entry['nodes'])
         edges.extend([(edge['source'], edge['target']) for edge in entry['edges']])
-        labels.extend([node['metrics']['num_rejected'] for node in entry['nodes']])
+        labels.extend([node['metrics'].get('num_rejected', 0) for node in entry['nodes']])
     return nodes, edges, labels
 
+# Definição do Dataset
+class MyDataset(Dataset):
+    def __init__(self, file_path, **kwargs):
+        self.file_path = file_path
+        super().__init__(**kwargs)
+
+    def read(self):
+        data = load_data(self.file_path)
+        nodes, edges, labels = process_data(data)
+        x = np.array(nodes, dtype=np.float32)
+        a = np.array(edges, dtype=np.int64).T
+        y = np.array(labels, dtype=np.float32)
+        return [Graph(x=x, a=a, y=y)]
+
 # Definição do modelo GNN
-class GNN(torch.nn.Module):
-    def __init__(self, in_channels, hidden_channels, out_channels):
-        super(GNN, self).__init__()
-        self.conv1 = GCNConv(in_channels, hidden_channels)
-        self.conv2 = GCNConv(hidden_channels, out_channels)
-        self.lin = Linear(out_channels, 1)
+class GNN(Model):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = GCNConv(16, activation='relu')
+        self.conv2 = GCNConv(16, activation='relu')
+        self.dense = Dense(1)
 
-    def forward(self, x, edge_index):
-        x = self.conv1(x, edge_index).relu()
-        x = self.conv2(x, edge_index).relu()
-        x = self.lin(x)
-        return x
-
-# Função para treinar o modelo
-def train(model, loader, optimizer, criterion):
-    model.train()
-    total_loss = 0
-    for data in loader:
-        optimizer.zero_grad()
-        out = model(data.x, data.edge_index)
-        loss = criterion(out, data.y)
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item()
-    return total_loss / len(loader)
+    def call(self, inputs):
+        x, a = inputs
+        x = self.conv1([x, a])
+        x = self.conv2([x, a])
+        return self.dense(x)
 
 # Função principal
 def main():
     # Carregar e processar os dados
-    file_path = '../sample-data/small-stable.jsonl'
-    data = load_data(file_path)
-    nodes, edges, labels = process_data(data)
+    file_path = 'sample-data/small-stable.jsonl'
+    dataset = MyDataset(file_path)
+    loader = SingleLoader(dataset)
 
-    # Criar o grafo
-    x = torch.tensor(nodes, dtype=torch.float)
-    edge_index = torch.tensor(edges, dtype=torch.long).t().contiguous()
-    y = torch.tensor(labels, dtype=torch.float)
-
-    # Criar o objeto Data
-    data = Data(x=x, edge_index=edge_index, y=y)
-
-    # Criar o DataLoader
-    loader = DataLoader([data], batch_size=1, shuffle=True)
+    print('File path ', file_path)
+    print('Dataset ', dataset)
+    print('Loader', loader)
 
     # Definir o modelo, otimizador e critério de perda
-    model = GNN(in_channels=x.size(1), hidden_channels=16, out_channels=16)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-    criterion = cross_entropy
+    model = GNN()
+    optimizer = Adam(learning_rate=0.01)
+    loss_fn = tf.keras.losses.MeanSquaredError()
 
     # Treinar o modelo
     for epoch in range(100):
-        loss = train(model, loader, optimizer, criterion)
-        print(f'Epoch {epoch+1}, Loss: {loss:.4f}')
+        for batch in loader:
+            with tf.GradientTape() as tape:
+                inputs = batch[0], batch[1]
+                targets = batch[2]
+                predictions = model(inputs, training=True)
+                loss = loss_fn(targets, predictions)
+            gradients = tape.gradient(loss, model.trainable_variables)
+            optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+        print(f'Epoch {epoch+1}, Loss: {loss.numpy():.4f}')
 
 if __name__ == '__main__':
     main()
