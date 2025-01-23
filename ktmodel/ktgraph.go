@@ -96,7 +96,36 @@ func (g *NwTopology) DrawPods() {
   for _, e := range g.Edges {
     _ = drawNwTopology.AddEdge(e.Source, e.Target)
   }
-  file, _ := os.Create("topology.dot")
+  file, _ := os.Create("pods.dot")
+  _ = draw.DOT(drawNwTopology, file)
+}
+
+func (g *NwTopology) DrawDeployments() {
+  drawNwTopology := graph.New(graph.StringHash, graph.Directed())
+  podMap := make(map[string]string)
+  dMap := make(map[string]int)
+  vertexMap := make(map[string]string)
+  for _, n := range g.Nodes {
+    val, ok := dMap[n.Deployment]
+    if !ok {
+      dMap[n.Deployment] = 1
+    } else {
+      dMap[n.Deployment] = val+1
+    }
+    podMap[n.ID] = n.Deployment
+  }
+  for k, v := range dMap {
+    vertexName := fmt.Sprintf("%v replicas: %v", k, v)
+    _ = drawNwTopology.AddVertex(vertexName)
+    vertexMap[k] = vertexName
+  }
+  for _, e := range g.Edges {
+    _ = drawNwTopology.AddEdge(
+      vertexMap[podMap[e.Source]],
+      vertexMap[podMap[e.Target]],
+    )
+  }
+  file, _ := os.Create("deployments.dot")
   _ = draw.DOT(drawNwTopology, file)
 }
 

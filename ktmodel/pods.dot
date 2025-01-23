@@ -1,0 +1,240 @@
+strict digraph {
+
+
+	"service-1-6db49ffd76-wrkps" [ num_rejected="0", queue_size="11", queue_use="0",  weight=0 ];
+
+	"service-1-6db49ffd76-wrkps" -> "service-13-5749dbd4cd-8btm9" [  weight=0 ];
+
+	"service-1-6db49ffd76-wrkps" -> "service-13-5749dbd4cd-hb8nc" [  weight=0 ];
+
+	"service-1-6db49ffd76-wrkps" -> "service-13-5749dbd4cd-gvc88" [  weight=0 ];
+
+	"service-10-7cb457d746-pb4sl" [ num_rejected="0", queue_size="8", queue_use="0",  weight=0 ];
+
+	"service-10-7cb457d746-pb4sl" -> "service-11-86dcb48ff8-ggtkv" [  weight=0 ];
+
+	"service-6-8d5f98fdb-vg6lh" [ num_rejected="0", queue_size="13", queue_use="0",  weight=0 ];
+
+	"service-6-8d5f98fdb-vg6lh" -> "service-10-7cb457d746-zlrmj" [  weight=0 ];
+
+	"service-6-8d5f98fdb-vg6lh" -> "service-10-7cb457d746-pb4sl" [  weight=0 ];
+
+	"service-6-8d5f98fdb-vg6lh" -> "service-10-7cb457d746-mhvrr" [  weight=0 ];
+
+	"service-6-8d5f98fdb-ppsl7" [ num_rejected="0", queue_size="13", queue_use="0",  weight=0 ];
+
+	"service-1-6db49ffd76-xwbfn" [ num_rejected="0", queue_size="11", queue_use="0",  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" [ num_rejected="13", queue_size="14", queue_use="14",  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-9-ccc58c9f6-gr76p" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-8-7d48f4794-54lm6" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-9-ccc58c9f6-hthq9" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-2-7d8b647fdb-8pkb6" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-4-6855c9c4c4-x6k9f" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-5-64b548b444-sbgjt" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-8-7d48f4794-8xx8t" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-3-5dfd5f87b4-szvqk" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-8-7d48f4794-6nh7d" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-9-ccc58c9f6-khr69" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-6-8d5f98fdb-ngfbp" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-6-8d5f98fdb-vg6lh" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-2-7d8b647fdb-m4kgd" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-7-5f7cdf89b-gh8b4" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-5-64b548b444-b62pw" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-5-64b548b444-f8gqx" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-6-8d5f98fdb-ppsl7" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-1-6db49ffd76-wrkps" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-1-6db49ffd76-xwbfn" [  weight=0 ];
+
+	"service-0-5c5ccd6cfd-wlv9f" -> "service-7-5f7cdf89b-qm5lw" [  weight=0 ];
+
+	"service-10-7cb457d746-zlrmj" [ num_rejected="0", queue_size="8", queue_use="8",  weight=0 ];
+
+	"service-10-7cb457d746-zlrmj" -> "service-11-86dcb48ff8-ggtkv" [  weight=0 ];
+
+	"service-10-7cb457d746-zlrmj" -> "service-12-6df4d5b974-rjwmx" [  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" [ num_rejected="0", queue_size="7", queue_use="7",  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" -> "service-12-6df4d5b974-rjwmx" [  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" -> "service-9-ccc58c9f6-khr69" [  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" -> "service-9-ccc58c9f6-hthq9" [  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" -> "service-9-ccc58c9f6-gr76p" [  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" -> "service-10-7cb457d746-zlrmj" [  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" -> "service-10-7cb457d746-pb4sl" [  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" -> "service-10-7cb457d746-mhvrr" [  weight=0 ];
+
+	"service-8-7d48f4794-54lm6" -> "service-11-86dcb48ff8-ggtkv" [  weight=0 ];
+
+	"service-13-5749dbd4cd-hb8nc" [ num_rejected="0", queue_size="14", queue_use="0",  weight=0 ];
+
+	"service-11-86dcb48ff8-ggtkv" [ num_rejected="7", queue_size="6", queue_use="6",  weight=0 ];
+
+	"service-11-86dcb48ff8-ggtkv" -> "service-12-6df4d5b974-rjwmx" [  weight=0 ];
+
+	"service-5-64b548b444-f8gqx" [ num_rejected="0", queue_size="5", queue_use="0",  weight=0 ];
+
+	"service-5-64b548b444-f8gqx" -> "service-7-5f7cdf89b-qm5lw" [  weight=0 ];
+
+	"service-5-64b548b444-f8gqx" -> "service-7-5f7cdf89b-gh8b4" [  weight=0 ];
+
+	"service-13-5749dbd4cd-gvc88" [ num_rejected="0", queue_size="14", queue_use="0",  weight=0 ];
+
+	"service-9-ccc58c9f6-khr69" [ num_rejected="0", queue_size="12", queue_use="1",  weight=0 ];
+
+	"service-9-ccc58c9f6-khr69" -> "service-11-86dcb48ff8-ggtkv" [  weight=0 ];
+
+	"service-9-ccc58c9f6-khr69" -> "service-10-7cb457d746-zlrmj" [  weight=0 ];
+
+	"service-9-ccc58c9f6-khr69" -> "service-10-7cb457d746-pb4sl" [  weight=0 ];
+
+	"service-9-ccc58c9f6-khr69" -> "service-10-7cb457d746-mhvrr" [  weight=0 ];
+
+	"service-4-6855c9c4c4-x6k9f" [ num_rejected="0", queue_size="12", queue_use="0",  weight=0 ];
+
+	"service-4-6855c9c4c4-x6k9f" -> "service-13-5749dbd4cd-gvc88" [  weight=0 ];
+
+	"service-4-6855c9c4c4-x6k9f" -> "service-13-5749dbd4cd-8btm9" [  weight=0 ];
+
+	"service-4-6855c9c4c4-x6k9f" -> "service-13-5749dbd4cd-hb8nc" [  weight=0 ];
+
+	"service-8-7d48f4794-8xx8t" [ num_rejected="0", queue_size="7", queue_use="0",  weight=0 ];
+
+	"service-9-ccc58c9f6-gr76p" [ num_rejected="0", queue_size="12", queue_use="5",  weight=0 ];
+
+	"service-9-ccc58c9f6-gr76p" -> "service-11-86dcb48ff8-ggtkv" [  weight=0 ];
+
+	"service-9-ccc58c9f6-gr76p" -> "service-10-7cb457d746-zlrmj" [  weight=0 ];
+
+	"service-9-ccc58c9f6-gr76p" -> "service-10-7cb457d746-pb4sl" [  weight=0 ];
+
+	"service-9-ccc58c9f6-gr76p" -> "service-10-7cb457d746-mhvrr" [  weight=0 ];
+
+	"service-7-5f7cdf89b-gh8b4" [ num_rejected="0", queue_size="9", queue_use="0",  weight=0 ];
+
+	"service-7-5f7cdf89b-gh8b4" -> "service-8-7d48f4794-6nh7d" [  weight=0 ];
+
+	"service-7-5f7cdf89b-gh8b4" -> "service-8-7d48f4794-54lm6" [  weight=0 ];
+
+	"service-7-5f7cdf89b-gh8b4" -> "service-8-7d48f4794-8xx8t" [  weight=0 ];
+
+	"service-3-5dfd5f87b4-szvqk" [ num_rejected="0", queue_size="10", queue_use="0",  weight=0 ];
+
+	"service-3-5dfd5f87b4-szvqk" -> "service-13-5749dbd4cd-hb8nc" [  weight=0 ];
+
+	"service-3-5dfd5f87b4-szvqk" -> "service-13-5749dbd4cd-gvc88" [  weight=0 ];
+
+	"service-3-5dfd5f87b4-szvqk" -> "service-13-5749dbd4cd-8btm9" [  weight=0 ];
+
+	"service-9-ccc58c9f6-hthq9" [ num_rejected="0", queue_size="12", queue_use="1",  weight=0 ];
+
+	"service-9-ccc58c9f6-hthq9" -> "service-10-7cb457d746-mhvrr" [  weight=0 ];
+
+	"service-9-ccc58c9f6-hthq9" -> "service-11-86dcb48ff8-ggtkv" [  weight=0 ];
+
+	"service-9-ccc58c9f6-hthq9" -> "service-10-7cb457d746-zlrmj" [  weight=0 ];
+
+	"service-9-ccc58c9f6-hthq9" -> "service-10-7cb457d746-pb4sl" [  weight=0 ];
+
+	"service-5-64b548b444-sbgjt" [ num_rejected="0", queue_size="5", queue_use="0",  weight=0 ];
+
+	"service-5-64b548b444-sbgjt" -> "service-7-5f7cdf89b-qm5lw" [  weight=0 ];
+
+	"service-5-64b548b444-sbgjt" -> "service-7-5f7cdf89b-gh8b4" [  weight=0 ];
+
+	"service-12-6df4d5b974-rjwmx" [ num_rejected="0", queue_size="14", queue_use="13",  weight=0 ];
+
+	"service-12-6df4d5b974-rjwmx" -> "service-13-5749dbd4cd-8btm9" [  weight=0 ];
+
+	"service-12-6df4d5b974-rjwmx" -> "service-13-5749dbd4cd-hb8nc" [  weight=0 ];
+
+	"service-12-6df4d5b974-rjwmx" -> "service-13-5749dbd4cd-gvc88" [  weight=0 ];
+
+	"service-6-8d5f98fdb-ngfbp" [ num_rejected="0", queue_size="13", queue_use="0",  weight=0 ];
+
+	"service-6-8d5f98fdb-ngfbp" -> "service-10-7cb457d746-mhvrr" [  weight=0 ];
+
+	"service-6-8d5f98fdb-ngfbp" -> "service-10-7cb457d746-zlrmj" [  weight=0 ];
+
+	"service-6-8d5f98fdb-ngfbp" -> "service-10-7cb457d746-pb4sl" [  weight=0 ];
+
+	"service-7-5f7cdf89b-qm5lw" [ num_rejected="0", queue_size="9", queue_use="4",  weight=0 ];
+
+	"service-7-5f7cdf89b-qm5lw" -> "service-8-7d48f4794-8xx8t" [  weight=0 ];
+
+	"service-7-5f7cdf89b-qm5lw" -> "service-8-7d48f4794-6nh7d" [  weight=0 ];
+
+	"service-7-5f7cdf89b-qm5lw" -> "service-8-7d48f4794-54lm6" [  weight=0 ];
+
+	"service-13-5749dbd4cd-8btm9" [ num_rejected="0", queue_size="14", queue_use="0",  weight=0 ];
+
+	"service-2-7d8b647fdb-8pkb6" [ num_rejected="0", queue_size="5", queue_use="0",  weight=0 ];
+
+	"service-2-7d8b647fdb-8pkb6" -> "service-13-5749dbd4cd-8btm9" [  weight=0 ];
+
+	"service-2-7d8b647fdb-8pkb6" -> "service-13-5749dbd4cd-hb8nc" [  weight=0 ];
+
+	"service-2-7d8b647fdb-8pkb6" -> "service-13-5749dbd4cd-gvc88" [  weight=0 ];
+
+	"service-2-7d8b647fdb-m4kgd" [ num_rejected="0", queue_size="5", queue_use="0",  weight=0 ];
+
+	"service-2-7d8b647fdb-m4kgd" -> "service-13-5749dbd4cd-8btm9" [  weight=0 ];
+
+	"service-2-7d8b647fdb-m4kgd" -> "service-13-5749dbd4cd-hb8nc" [  weight=0 ];
+
+	"service-2-7d8b647fdb-m4kgd" -> "service-13-5749dbd4cd-gvc88" [  weight=0 ];
+
+	"service-5-64b548b444-b62pw" [ num_rejected="0", queue_size="5", queue_use="0",  weight=0 ];
+
+	"service-5-64b548b444-b62pw" -> "service-7-5f7cdf89b-qm5lw" [  weight=0 ];
+
+	"service-5-64b548b444-b62pw" -> "service-7-5f7cdf89b-gh8b4" [  weight=0 ];
+
+	"service-10-7cb457d746-mhvrr" [ num_rejected="0", queue_size="8", queue_use="7",  weight=0 ];
+
+	"service-10-7cb457d746-mhvrr" -> "service-11-86dcb48ff8-ggtkv" [  weight=0 ];
+
+	"service-10-7cb457d746-mhvrr" -> "service-12-6df4d5b974-rjwmx" [  weight=0 ];
+
+	"service-8-7d48f4794-6nh7d" [ num_rejected="0", queue_size="7", queue_use="3",  weight=0 ];
+
+	"service-8-7d48f4794-6nh7d" -> "service-10-7cb457d746-zlrmj" [  weight=0 ];
+
+	"service-8-7d48f4794-6nh7d" -> "service-10-7cb457d746-pb4sl" [  weight=0 ];
+
+	"service-8-7d48f4794-6nh7d" -> "service-10-7cb457d746-mhvrr" [  weight=0 ];
+
+	"service-8-7d48f4794-6nh7d" -> "service-11-86dcb48ff8-ggtkv" [  weight=0 ];
+
+	"service-8-7d48f4794-6nh7d" -> "service-9-ccc58c9f6-khr69" [  weight=0 ];
+
+	"service-8-7d48f4794-6nh7d" -> "service-9-ccc58c9f6-hthq9" [  weight=0 ];
+
+	"service-8-7d48f4794-6nh7d" -> "service-9-ccc58c9f6-gr76p" [  weight=0 ];
+
+}

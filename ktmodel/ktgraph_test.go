@@ -28,4 +28,5 @@ func TestDrawing(t *testing.T) {
     t.Fatalf("Could not parse line: %v\n", err)
   }
   series[len(series)-1].DrawPods()
+  series[len(series)-1].DrawDeployments()
 }

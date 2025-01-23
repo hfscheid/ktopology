@@ -1,0 +1,84 @@
+strict digraph {
+
+
+	"service-11 replicas: 1" [  weight=0 ];
+
+	"service-11 replicas: 1" -> "service-12 replicas: 1" [  weight=0 ];
+
+	"service-8 replicas: 3" [  weight=0 ];
+
+	"service-8 replicas: 3" -> "service-12 replicas: 1" [  weight=0 ];
+
+	"service-8 replicas: 3" -> "service-9 replicas: 3" [  weight=0 ];
+
+	"service-8 replicas: 3" -> "service-10 replicas: 3" [  weight=0 ];
+
+	"service-8 replicas: 3" -> "service-11 replicas: 1" [  weight=0 ];
+
+	"service-7 replicas: 2" [  weight=0 ];
+
+	"service-7 replicas: 2" -> "service-8 replicas: 3" [  weight=0 ];
+
+	"service-5 replicas: 3" [  weight=0 ];
+
+	"service-5 replicas: 3" -> "service-7 replicas: 2" [  weight=0 ];
+
+	"service-6 replicas: 3" [  weight=0 ];
+
+	"service-6 replicas: 3" -> "service-10 replicas: 3" [  weight=0 ];
+
+	"service-2 replicas: 2" [  weight=0 ];
+
+	"service-2 replicas: 2" -> "service-13 replicas: 3" [  weight=0 ];
+
+	"service-1 replicas: 2" [  weight=0 ];
+
+	"service-1 replicas: 2" -> "service-13 replicas: 3" [  weight=0 ];
+
+	"service-3 replicas: 1" [  weight=0 ];
+
+	"service-3 replicas: 1" -> "service-13 replicas: 3" [  weight=0 ];
+
+	"service-13 replicas: 3" [  weight=0 ];
+
+	"service-4 replicas: 1" [  weight=0 ];
+
+	"service-4 replicas: 1" -> "service-13 replicas: 3" [  weight=0 ];
+
+	"service-12 replicas: 1" [  weight=0 ];
+
+	"service-12 replicas: 1" -> "service-13 replicas: 3" [  weight=0 ];
+
+	"service-0 replicas: 1" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-6 replicas: 3" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-8 replicas: 3" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-9 replicas: 3" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-7 replicas: 2" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-3 replicas: 1" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-2 replicas: 2" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-4 replicas: 1" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-1 replicas: 2" [  weight=0 ];
+
+	"service-0 replicas: 1" -> "service-5 replicas: 3" [  weight=0 ];
+
+	"service-10 replicas: 3" [  weight=0 ];
+
+	"service-10 replicas: 3" -> "service-11 replicas: 1" [  weight=0 ];
+
+	"service-10 replicas: 3" -> "service-12 replicas: 1" [  weight=0 ];
+
+	"service-9 replicas: 3" [  weight=0 ];
+
+	"service-9 replicas: 3" -> "service-10 replicas: 3" [  weight=0 ];
+
+	"service-9 replicas: 3" -> "service-11 replicas: 1" [  weight=0 ];
+
+}
